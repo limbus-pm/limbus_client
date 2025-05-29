@@ -39,6 +39,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -90,7 +93,7 @@ data class FoodOption(
     val carbs: Double = 0.0,
     val fat: Double = 0.0,
     val fiber: Double = 0.0,
-    val mealTypes: List<String> = emptyList() // Nuevo campo para tipos de comida
+    val mealTypes: List<String> = emptyList()
 )
 
 data class Recipe(
@@ -102,7 +105,7 @@ data class Recipe(
     val calories: Int,
     val rating: Double = 0.0,
     val isFavorite: Boolean = false,
-    val mealTypes: List<String> = emptyList() // Nuevo campo para tipos de comida
+    val mealTypes: List<String> = emptyList()
 )
 
 data class CookbookRecipe(
@@ -113,7 +116,7 @@ data class CookbookRecipe(
     val prepTime: String,
     val difficulty: String,
     val isPersonal: Boolean = true,
-    val mealTypes: List<String> = emptyList() // Nuevo campo para tipos de comida
+    val mealTypes: List<String> = emptyList()
 )
 
 data class PortionType(
@@ -135,7 +138,7 @@ data class FoodRegistration(
     val totalFiber: Double
 )
 
-// Constantes actualizadas - solo 4 tipos de comida
+// Constantes
 val mealTypes = listOf("Desayuno", "Almuerzo", "Cena", "Snack")
 
 enum class FoodTab { COOKBOOK, RECIPES, FOODS }
@@ -145,7 +148,8 @@ enum class FoodTab { COOKBOOK, RECIPES, FOODS }
 fun AddFoodScreen(
     onBackClicked: () -> Unit,
     onFoodSelected: (String) -> Unit,
-    onFoodRegistered: (FoodRegistration) -> Unit = {} // Callback para manejar el registro
+    onFoodRegistered: (FoodRegistration) -> Unit = {},
+    initialRegisteredFoods: List<FoodRegistration> = emptyList() // Para recibir alimentos previamente guardados
 ) {
     // Estados
     var selectedMealTypeIndex by remember { mutableStateOf(0) }
@@ -154,12 +158,17 @@ fun AddFoodScreen(
     var isSearchActive by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(FoodTab.FOODS) }
 
-    // Lista de alimentos registrados
-    var registeredFoods by remember { mutableStateOf<List<FoodRegistration>>(emptyList()) }
+    // Lista de alimentos registrados (inicializada con datos previos)
+    var registeredFoods by remember { mutableStateOf(initialRegisteredFoods) }
 
-    // Estado para el modal de registro
+    // Estado para controlar la expansión de la sección de alimentos añadidos
+    var isAddedFoodsExpanded by remember { mutableStateOf(true) }
+
+    // Estados para modales
     var showRegistrationModal by remember { mutableStateOf(false) }
     var selectedFoodForRegistration by remember { mutableStateOf<FoodOption?>(null) }
+    var showCustomRecipeModal by remember { mutableStateOf(false) }
+    var showSaveConfirmationModal by remember { mutableStateOf(false) }
 
     // Función para agregar alimento a la lista
     val addFoodToList = { registration: FoodRegistration ->
@@ -172,6 +181,13 @@ fun AddFoodScreen(
         registeredFoods = registeredFoods.filter { it.id != foodId }
     }
 
+    // Función para guardar todos los alimentos
+    val saveAllFoods = {
+        if (registeredFoods.isNotEmpty()) {
+            showSaveConfirmationModal = true
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -180,7 +196,7 @@ fun AddFoodScreen(
                         Text(text = mealTypes[selectedMealTypeIndex])
                         if (registeredFoods.isNotEmpty()) {
                             Text(
-                                text = "${registeredFoods.size} alimento(s) añadido(s)",
+                                text = "${registeredFoods.size} alimento(s) preparado(s)",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                             )
@@ -190,6 +206,21 @@ fun AddFoodScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClicked) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                },
+                actions = {
+                    // Botón de guardar visible solo si hay alimentos
+                    if (registeredFoods.isNotEmpty()) {
+                        Button(
+                            onClick = saveAllFoods,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onPrimary,
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Guardar Todo")
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -212,7 +243,7 @@ fun AddFoodScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     ) {
                         MealTypeFab(type = "Crear receta personalizada", onClick = {
-                            onFoodSelected("Receta personalizada")
+                            showCustomRecipeModal = true
                             isFabExpanded = false
                         })
                         MealTypeFab(type = "Buscar alimento común", onClick = {
@@ -267,14 +298,15 @@ fun AddFoodScreen(
                 }
             }
 
-            // Lista de alimentos registrados (si hay alguno)
-            AnimatedVisibility(visible = registeredFoods.isNotEmpty()) {
-                RegisteredFoodsList(
-                    registeredFoods = registeredFoods,
-                    onRemoveFood = removeFoodFromList,
-                    mealType = mealTypes[selectedMealTypeIndex]
-                )
-            }
+            // *** NUEVA SECCIÓN: Alimentos Añadidos (siempre visible y más prominente) ***
+            AddedFoodsSection(
+                registeredFoods = registeredFoods,
+                mealType = mealTypes[selectedMealTypeIndex],
+                isExpanded = isAddedFoodsExpanded,
+                onToggleExpanded = { isAddedFoodsExpanded = !isAddedFoodsExpanded },
+                onRemoveFood = removeFoodFromList,
+                onSaveAll = saveAllFoods
+            )
 
             // Barra de búsqueda
             SearchBar(
@@ -361,71 +393,340 @@ fun AddFoodScreen(
             }
         )
     }
+
+    // Modal de receta personalizada
+    if (showCustomRecipeModal) {
+        CreateCustomRecipeModal(
+            onDismiss = { showCustomRecipeModal = false },
+            onNavigateToRegisterFood = {
+                showCustomRecipeModal = false
+                onFoodSelected("RegisterFoodScreen")
+            }
+        )
+    }
+
+    // Modal de confirmación de guardado
+    if (showSaveConfirmationModal) {
+        SaveConfirmationModal(
+            foodsCount = registeredFoods.size,
+            mealType = mealTypes[selectedMealTypeIndex],
+            onDismiss = { showSaveConfirmationModal = false },
+            onConfirm = {
+                // Aquí guardas todos los alimentos en la base de datos/estado global
+                // registeredFoods.forEach { food -> saveToDatabase(food) }
+                showSaveConfirmationModal = false
+                onBackClicked() // Regresar a la pantalla anterior
+            }
+        )
+    }
 }
 
+// *** NUEVA SECCIÓN: Componente dedicado para Alimentos Añadidos ***
 @Composable
-fun RegisteredFoodsList(
+fun AddedFoodsSection(
     registeredFoods: List<FoodRegistration>,
+    mealType: String,
+    isExpanded: Boolean,
+    onToggleExpanded: () -> Unit,
     onRemoveFood: (String) -> Unit,
-    mealType: String
+    onSaveAll: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            containerColor = if (registeredFoods.isNotEmpty()) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            }
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (registeredFoods.isNotEmpty()) 4.dp else 1.dp
         )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            // Header de la sección
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { if (registeredFoods.isNotEmpty()) onToggleExpanded() },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Alimentos añadidos a $mealType",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = if (registeredFoods.isNotEmpty()) Icons.Default.CheckCircle else Icons.Default.Add,
+                        contentDescription = null,
+                        tint = if (registeredFoods.isNotEmpty()) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+
+                    Column {
+                        Text(
+                            text = if (registeredFoods.isNotEmpty()) {
+                                "Alimentos para $mealType"
+                            } else {
+                                "Sin alimentos añadidos"
+                            },
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (registeredFoods.isNotEmpty()) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+
+                        if (registeredFoods.isNotEmpty()) {
+                            Text(
+                                text = "${registeredFoods.size} alimento(s) • ${registeredFoods.sumOf { it.totalCalories }} cal total",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            )
+                        } else {
+                            Text(
+                                text = "Usa el botón + para añadir alimentos",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+
+                if (registeredFoods.isNotEmpty()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Botón de guardar todo (pequeño)
+                        Button(
+                            onClick = onSaveAll,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4CAF50),
+                                contentColor = Color.White
+                            ),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text(
+                                "Guardar Todo",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+
+                        // Botón de expandir/colapsar
+                        IconButton(
+                            onClick = onToggleExpanded,
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = if (isExpanded) "Colapsar" else "Expandir",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Contenido expandible
+            AnimatedVisibility(
+                visible = isExpanded && registeredFoods.isNotEmpty()
+            ) {
+                Column(
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    // Resumen nutricional total
+                    val totalCalories = registeredFoods.sumOf { it.totalCalories }
+                    val totalProtein = registeredFoods.sumOf { it.totalProtein }
+                    val totalCarbs = registeredFoods.sumOf { it.totalCarbs }
+                    val totalFat = registeredFoods.sumOf { it.totalFat }
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            NutritionSummary("Calorías", "${totalCalories}")
+                            NutritionSummary("Proteínas", "${String.format("%.1f", totalProtein)}g")
+                            NutritionSummary("Carbos", "${String.format("%.1f", totalCarbs)}g")
+                            NutritionSummary("Grasas", "${String.format("%.1f", totalFat)}g")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Lista de alimentos individuales
+                    registeredFoods.forEach { registration ->
+                        RegisteredFoodItem(
+                            registration = registration,
+                            onRemove = { onRemoveFood(registration.id) }
+                        )
+                        if (registration != registeredFoods.last()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// *** NUEVO: Modal de confirmación de guardado ***
+@Composable
+fun SaveConfirmationModal(
+    foodsCount: Int,
+    mealType: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Icono de confirmación
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(64.dp)
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
-                    text = "${registeredFoods.size} item(s)",
+                    text = "¿Guardar alimentos?",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Se guardarán $foodsCount alimento(s) en tu $mealType",
                     style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancelar")
+                    }
+                    Button(
+                        onClick = onConfirm,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50)
+                        )
+                    ) {
+                        Text("Guardar")
+                    }
+                }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Resumen nutricional total
-            val totalCalories = registeredFoods.sumOf { it.totalCalories }
-            val totalProtein = registeredFoods.sumOf { it.totalProtein }
-            val totalCarbs = registeredFoods.sumOf { it.totalCarbs }
-            val totalFat = registeredFoods.sumOf { it.totalFat }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+// Resto de los componentes (sin cambios significativos)
+@Composable
+fun CreateCustomRecipeModal(
+    onDismiss: () -> Unit,
+    onNavigateToRegisterFood: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                NutritionSummary("Cal", "${totalCalories}")
-                NutritionSummary("Prot", "${String.format("%.1f", totalProtein)}g")
-                NutritionSummary("Carb", "${String.format("%.1f", totalCarbs)}g")
-                NutritionSummary("Gras", "${String.format("%.1f", totalFat)}g")
-            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Crear Receta Personalizada",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar"
+                        )
+                    }
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-            // Lista de alimentos individuales
-            registeredFoods.forEach { registration ->
-                RegisteredFoodItem(
-                    registration = registration,
-                    onRemove = { onRemoveFood(registration.id) }
+                Text(
+                    text = "👨‍🍳",
+                    style = MaterialTheme.typography.displayLarge
                 )
-                if (registration != registeredFoods.last()) {
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Añadir Alimento",
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancelar")
+                    }
+                    Button(
+                        onClick = onNavigateToRegisterFood,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Continuar")
+                    }
                 }
             }
         }
@@ -467,7 +768,6 @@ fun RegisteredFoodItem(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Emoji del alimento
             Text(
                 text = getFoodEmoji(registration.food.name),
                 style = MaterialTheme.typography.headlineSmall,
@@ -484,15 +784,16 @@ fun RegisteredFoodItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                // Continuación del archivo AddFoodScreen.kt
+
                 Text(
                     text = "${String.format("%.1f", registration.quantity)} ${registration.portionType.name.lowercase()} (${String.format("%.0f", registration.quantity * registration.portionType.grams)}g)",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${registration.totalCalories} cal",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold,
+                    text = "${registration.totalCalories} cal • P: ${String.format("%.1f", registration.totalProtein)}g • C: ${String.format("%.1f", registration.totalCarbs)}g • G: ${String.format("%.1f", registration.totalFat)}g",
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -503,7 +804,7 @@ fun RegisteredFoodItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar alimento",
+                    contentDescription = "Eliminar",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(20.dp)
                 )
@@ -513,59 +814,90 @@ fun RegisteredFoodItem(
 }
 
 @Composable
-fun MealTypeFab(type: String, onClick: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+fun MealTypeFab(
+    type: String,
+    onClick: () -> Unit
+) {
+    Surface(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onClick() }
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shadowElevation = 4.dp
     ) {
         Text(
             text = type,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            style = MaterialTheme.typography.labelLarge
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
 }
 
 @Composable
 fun CookbookContent(mealType: String) {
-    val cookbookRecipes = getCookbookRecipes(mealType)
+    // Datos de ejemplo para el libro de cocina personal
+    val cookbookRecipes = remember {
+        listOf(
+            CookbookRecipe(
+                id = "1",
+                name = "Ensalada de Quinoa y Vegetales",
+                imageUrl = null,
+                calories = 320,
+                prepTime = "15 min",
+                difficulty = "Fácil",
+                isPersonal = true,
+                mealTypes = listOf("Almuerzo", "Cena")
+            ),
+            CookbookRecipe(
+                id = "2",
+                name = "Smoothie Proteico Verde",
+                imageUrl = null,
+                calories = 180,
+                prepTime = "5 min",
+                difficulty = "Muy Fácil",
+                isPersonal = true,
+                mealTypes = listOf("Desayuno", "Snack")
+            ),
+            CookbookRecipe(
+                id = "3",
+                name = "Pollo al Horno con Verduras",
+                imageUrl = null,
+                calories = 450,
+                prepTime = "45 min",
+                difficulty = "Intermedio",
+                isPersonal = true,
+                mealTypes = listOf("Almuerzo", "Cena")
+            )
+        )
+    }
 
-    if (cookbookRecipes.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "📖",
-                    style = MaterialTheme.typography.displayLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "No hay recetas guardadas para $mealType",
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Text(
+                text = "Tus Recetas Guardadas",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
-    } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(cookbookRecipes) { recipe ->
-                CookbookRecipeCard(recipe)
+
+        items(cookbookRecipes.filter { mealType in it.mealTypes }) { recipe ->
+            CookbookRecipeCard(recipe = recipe)
+        }
+
+        if (cookbookRecipes.filter { mealType in it.mealTypes }.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    title = "Sin recetas para $mealType",
+                    description = "Aún no tienes recetas guardadas para esta comida",
+                    emoji = "📝"
+                )
             }
         }
     }
@@ -573,40 +905,70 @@ fun CookbookContent(mealType: String) {
 
 @Composable
 fun RecipesContent(mealType: String) {
-    val recipes = getOnlineRecipes(mealType)
+    // Datos de ejemplo para recetas online
+    val onlineRecipes = remember {
+        listOf(
+            Recipe(
+                id = "1",
+                title = "Tazón Mediterráneo con Quinoa",
+                imageUrl = null,
+                readyInMinutes = 25,
+                servings = 2,
+                calories = 380,
+                rating = 4.7,
+                isFavorite = false,
+                mealTypes = listOf("Almuerzo", "Cena")
+            ),
+            Recipe(
+                id = "2",
+                title = "Avena con Frutas y Nueces",
+                imageUrl = null,
+                readyInMinutes = 10,
+                servings = 1,
+                calories = 290,
+                rating = 4.5,
+                isFavorite = true,
+                mealTypes = listOf("Desayuno")
+            ),
+            Recipe(
+                id = "3",
+                title = "Salmón Glaseado con Brócoli",
+                imageUrl = null,
+                readyInMinutes = 30,
+                servings = 2,
+                calories = 420,
+                rating = 4.8,
+                isFavorite = false,
+                mealTypes = listOf("Almuerzo", "Cena")
+            )
+        )
+    }
 
-    if (recipes.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "🌐",
-                    style = MaterialTheme.typography.displayLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "No hay recetas online para $mealType",
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Text(
+                text = "Recetas Populares",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
-    } else {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(recipes) { recipe ->
-                OnlineRecipeCard(recipe)
+
+        items(onlineRecipes.filter { mealType in it.mealTypes }) { recipe ->
+            RecipeCard(recipe = recipe)
+        }
+
+        if (onlineRecipes.filter { mealType in it.mealTypes }.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    title = "Sin recetas para $mealType",
+                    description = "No encontramos recetas populares para esta comida",
+                    emoji = "🔍"
+                )
             }
         }
     }
@@ -617,102 +979,84 @@ fun FoodsContent(
     mealType: String,
     onFoodClick: (FoodOption) -> Unit
 ) {
-    val foods = getFoodOptions(mealType)
-
-    if (foods.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "🍽️",
-                    style = MaterialTheme.typography.displayLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "No hay alimentos disponibles para $mealType",
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    } else {
-        LazyColumn(
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(foods) { food ->
-                FoodItemCard(
-                    food = food,
-                    onClick = { onFoodClick(food) }
-                )
-            }
-        }
+    // Datos de ejemplo para alimentos
+    val foodOptions = remember {
+        listOf(
+            FoodOption(
+                id = "1",
+                name = "Pechuga de Pollo",
+                calories = 165,
+                protein = 31.0,
+                carbs = 0.0,
+                fat = 3.6,
+                fiber = 0.0,
+                mealTypes = listOf("Almuerzo", "Cena")
+            ),
+            FoodOption(
+                id = "2",
+                name = "Avena Integral",
+                calories = 389,
+                protein = 16.9,
+                carbs = 66.3,
+                fat = 6.9,
+                fiber = 10.6,
+                mealTypes = listOf("Desayuno")
+            ),
+            FoodOption(
+                id = "3",
+                name = "Quinoa Cocida",
+                calories = 120,
+                protein = 4.4,
+                carbs = 22.0,
+                fat = 1.9,
+                fiber = 2.8,
+                mealTypes = listOf("Almuerzo", "Cena", "Desayuno")
+            ),
+            FoodOption(
+                id = "4",
+                name = "Huevo Entero",
+                calories = 155,
+                protein = 13.0,
+                carbs = 1.1,
+                fat = 11.0,
+                fiber = 0.0,
+                mealTypes = listOf("Desayuno", "Almuerzo", "Cena", "Snack")
+            ),
+            FoodOption(
+                id = "5",
+                name = "Plátano Mediano",
+                calories = 105,
+                protein = 1.3,
+                carbs = 27.0,
+                fat = 0.4,
+                fiber = 3.1,
+                mealTypes = listOf("Desayuno", "Snack")
+            ),
+            FoodOption(
+                id = "6",
+                name = "Almendras",
+                calories = 579,
+                protein = 21.2,
+                carbs = 21.6,
+                fat = 49.9,
+                fiber = 12.5,
+                mealTypes = listOf("Snack", "Desayuno")
+            )
+        )
     }
-}
 
-@Composable
-fun FoodItemCard(
-    food: FoodOption,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Icono del alimento
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = getFoodEmoji(food.name),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = food.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "${food.calories} cal por 100g",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "P: ${food.protein}g | C: ${food.carbs}g | G: ${food.fat}g",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            IconButton(onClick = onClick) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Añadir alimento",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+        items(foodOptions.filter { mealType in it.mealTypes || it.mealTypes.isEmpty() }) { food ->
+            FoodCard(
+                food = food,
+                onClick = { onFoodClick(food) }
+            )
         }
     }
 }
@@ -722,71 +1066,69 @@ fun CookbookRecipeCard(recipe: CookbookRecipe) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
-            .clickable { /* Navegar a detalle */ },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+            .clickable { /* Handle click */ },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Placeholder para imagen
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(130.dp)
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "🍳",
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                }
-
                 Text(
-                    text = recipe.difficulty,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.labelSmall
-                )
-
-                Text(
-                    text = "${recipe.calories} cal",
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold
+                    text = "🍽️",
+                    style = MaterialTheme.typography.headlineMedium
                 )
             }
 
-            Column(modifier = Modifier.padding(12.dp)) {
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = recipe.name,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Text(
+                        text = recipe.prepTime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = recipe.difficulty,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Text(
-                    text = "⏱️ ${recipe.prepTime}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${recipe.calories} calorías",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+
+            IconButton(onClick = { /* Toggle favorite */ }) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorito",
+                    tint = if (recipe.isPersonal) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -794,110 +1136,168 @@ fun CookbookRecipeCard(recipe: CookbookRecipe) {
 }
 
 @Composable
-fun OnlineRecipeCard(recipe: Recipe) {
+fun RecipeCard(recipe: Recipe) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
-            .clickable { /* Navegar a detalle */ },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+            .clickable { /* Handle click */ },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Placeholder para imagen
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp)
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "🍽️",
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                }
-
-                IconButton(
-                    onClick = { /* Toggle favorito */ },
-                    modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Favorito",
-                        tint = if (recipe.isFavorite) Color.Red else Color.White
-                    )
-                }
-
-                if (recipe.rating > 0) {
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(8.dp).background(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rating",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text(
-                            text = String.format("%.1f", recipe.rating),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-
                 Text(
-                    text = "${recipe.calories} cal",
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold
+                    text = "🥗",
+                    style = MaterialTheme.typography.headlineMedium
                 )
             }
 
-            Column(modifier = Modifier.padding(12.dp)) {
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = recipe.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(top = 4.dp)
                 ) {
                     Text(
-                        text = "⏱️ ${recipe.readyInMinutes} min",
+                        text = "${recipe.readyInMinutes} min",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
-                        text = "👥 ${recipe.servings}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = Color(0xFFFFD700)
+                        )
+                        Text(
+                            text = String.format("%.1f", recipe.rating),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 2.dp)
+                        )
+                    }
                 }
+                Text(
+                    text = "${recipe.calories} cal • ${recipe.servings} porción(es)",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
+
+            IconButton(onClick = { /* Toggle favorite */ }) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorito",
+                    tint = if (recipe.isFavorite) Color(0xFFE91E63)
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FoodCard(
+    food: FoodOption,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = getFoodEmoji(food.name),
+                style = MaterialTheme.typography.displaySmall,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Text(
+                text = food.name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
+            Text(
+                text = "${food.calories} cal/100g",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium
+            )
+
+            Text(
+                text = "P: ${String.format("%.1f", food.protein)}g",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun EmptyStateCard(
+    title: String,
+    description: String,
+    emoji: String
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = emoji,
+                style = MaterialTheme.typography.displayMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -912,21 +1312,19 @@ fun AddFoodRegistrationModal(
     var quantity by remember { mutableDoubleStateOf(1.0) }
     var selectedPortionIndex by remember { mutableIntStateOf(0) }
 
-    val portionTypes = listOf(
-        PortionType("Gramos", 1.0, "g"),
-        PortionType("Porción", 100.0, "porción estándar"),
-        PortionType("Taza", 240.0, "1 taza"),
-        PortionType("Cucharada", 15.0, "1 cucharada"),
-        PortionType("Cucharadita", 5.0, "1 cucharadita"),
-        PortionType("Pieza", 50.0, "1 pieza mediana"),
-        PortionType("Rebanada", 30.0, "1 rebanada")
-    )
+    val portionTypes = remember {
+        listOf(
+            PortionType("Gramos", 1.0, "Peso en gramos"),
+            PortionType("Porción", 100.0, "Porción estándar (100g)"),
+            PortionType("Taza", 150.0, "Una taza (~150g)"),
+            PortionType("Cucharada", 15.0, "Una cucharada (~15g)")
+        )
+    }
 
     val selectedPortion = portionTypes[selectedPortionIndex]
     val totalGrams = quantity * selectedPortion.grams
-
-    // Cálculos nutricionales
     val multiplier = totalGrams / 100.0
+
     val totalCalories = (food.calories * multiplier).roundToInt()
     val totalProtein = food.protein * multiplier
     val totalCarbs = food.carbs * multiplier
@@ -951,146 +1349,152 @@ fun AddFoodRegistrationModal(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Añadir a $mealType",
+                        text = "Añadir Alimento",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
                     IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar"
-                        )
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar")
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Información del alimento
+                // Food info
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = getFoodEmoji(food.name),
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                    }
-
+                    Text(
+                        text = getFoodEmoji(food.name),
+                        style = MaterialTheme.typography.displaySmall
+                    )
                     Spacer(modifier = Modifier.width(12.dp))
-
                     Column {
                         Text(
                             text = food.name,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "${food.calories} cal por 100g",
+                            text = "Para $mealType",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Control de cantidad
+                // Quantity input
                 Text(
                     text = "Cantidad",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = { if (quantity > 0.1) quantity = (quantity - 0.1).coerceAtLeast(0.1) },
-                        modifier = Modifier.size(40.dp),
-                        contentPadding = PaddingValues(0.dp)
+                    IconButton(
+                        onClick = { if (quantity > 0.1) quantity -= 0.1 },
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Remove,
-                            contentDescription = "Disminuir cantidad",
-                            modifier = Modifier.size(16.dp)
+                            Icons.Default.Remove,
+                            contentDescription = "Reducir",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
 
                     OutlinedTextField(
                         value = String.format("%.1f", quantity),
                         onValueChange = { newValue ->
-                            newValue.toDoubleOrNull()?.let {
-                                if (it > 0) quantity = it
+                            newValue.toDoubleOrNull()?.let { value ->
+                                if (value >= 0) quantity = value
                             }
                         },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 12.dp),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        modifier = Modifier.weight(1f),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true
                     )
 
-                    OutlinedButton(
+                    IconButton(
                         onClick = { quantity += 0.1 },
-                        modifier = Modifier.size(40.dp),
-                        contentPadding = PaddingValues(0.dp)
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Aumentar cantidad",
-                            modifier = Modifier.size(16.dp)
+                            Icons.Default.Add,
+                            contentDescription = "Aumentar",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Selector de tipo de porción
+                // Portion type selector
                 Text(
                     text = "Tipo de porción",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 LazyColumn(
-                    modifier = Modifier.height(120.dp)
+                    modifier = Modifier.height(120.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     itemsIndexed(portionTypes) { index, portion ->
-                        Row(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { selectedPortionIndex = index }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .clickable { selectedPortionIndex = index },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (index == selectedPortionIndex) {
+                                    MaterialTheme.colorScheme.primaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                }
+                            ),
+                            border = if (index == selectedPortionIndex) {
+                                BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                            } else null
                         ) {
-                            androidx.compose.material3.RadioButton(
-                                selected = selectedPortionIndex == index,
-                                onClick = { selectedPortionIndex = index }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = portion.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    text = portion.description,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = portion.name,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = portion.description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                if (index == selectedPortionIndex) {
+                                    Icon(
+                                        Icons.Default.CheckCircle,
+                                        contentDescription = "Seleccionado",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                     }
@@ -1098,48 +1502,43 @@ fun AddFoodRegistrationModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Información nutricional calculada
+                // Nutritional summary
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
                     )
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Información nutricional",
+                            text = "Resumen nutricional",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
                         Text(
-                            text = "Total: ${String.format("%.0f", totalGrams)}g",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = "${String.format("%.0f", totalGrams)}g total",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            NutritionInfo("Calorías", "${totalCalories}")
-                            NutritionInfo("Proteína", "${String.format("%.1f", totalProtein)}g")
-                            NutritionInfo("Carbohidratos", "${String.format("%.1f", totalCarbs)}g")
-                            NutritionInfo("Grasas", "${String.format("%.1f", totalFat)}g")
+                            NutritionItem("Calorías", "${totalCalories}")
+                            NutritionItem("Proteínas", "${String.format("%.1f", totalProtein)}g")
+                            NutritionItem("Carbohidratos", "${String.format("%.1f", totalCarbs)}g")
+                            NutritionItem("Grasas", "${String.format("%.1f", totalFat)}g")
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botones de acción
+                // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1176,7 +1575,7 @@ fun AddFoodRegistrationModal(
 }
 
 @Composable
-fun NutritionInfo(label: String, value: String) {
+fun NutritionItem(label: String, value: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -1189,100 +1588,26 @@ fun NutritionInfo(label: String, value: String) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
             textAlign = TextAlign.Center
         )
     }
 }
 
-// Funciones helper
+// Función auxiliar para obtener emojis según el nombre del alimento
 fun getFoodEmoji(foodName: String): String {
     return when {
-        foodName.contains("manzana", ignoreCase = true) -> "🍎"
-        foodName.contains("banana", ignoreCase = true) || foodName.contains("plátano", ignoreCase = true) -> "🍌"
-        foodName.contains("pan", ignoreCase = true) -> "🍞"
+        foodName.contains("pollo", ignoreCase = true) -> "🍗"
         foodName.contains("huevo", ignoreCase = true) -> "🥚"
-        foodName.contains("pollo", ignoreCase = true) -> "🐔"
-        foodName.contains("carne", ignoreCase = true) -> "🥩"
-        foodName.contains("pescado", ignoreCase = true) -> "🐟"
-        foodName.contains("leche", ignoreCase = true) -> "🥛"
-        foodName.contains("queso", ignoreCase = true) -> "🧀"
-        foodName.contains("yogur", ignoreCase = true) -> "🥛"
-        foodName.contains("arroz", ignoreCase = true) -> "🍚"
-        foodName.contains("pasta", ignoreCase = true) -> "🍝"
+        foodName.contains("avena", ignoreCase = true) -> "🥣"
+        foodName.contains("quinoa", ignoreCase = true) -> "🌾"
+        foodName.contains("plátano", ignoreCase = true) -> "🍌"
+        foodName.contains("almendra", ignoreCase = true) -> "🥜"
         foodName.contains("ensalada", ignoreCase = true) -> "🥗"
-        foodName.contains("tomate", ignoreCase = true) -> "🍅"
-        foodName.contains("zanahoria", ignoreCase = true) -> "🥕"
-        foodName.contains("brócoli", ignoreCase = true) -> "🥦"
-        foodName.contains("papa", ignoreCase = true) || foodName.contains("patata", ignoreCase = true) -> "🥔"
+        foodName.contains("smoothie", ignoreCase = true) -> "🥤"
+        foodName.contains("salmón", ignoreCase = true) -> "🐟"
+        foodName.contains("verdura", ignoreCase = true) -> "🥦"
+        foodName.contains("fruta", ignoreCase = true) -> "🍎"
         else -> "🍽️"
-    }
-}
-
-fun getFoodOptions(mealType: String): List<FoodOption> {
-    return when (mealType) {
-        "Desayuno" -> listOf(
-            FoodOption("1", "Avena", 389, protein = 16.9, carbs = 66.3, fat = 6.9, fiber = 10.6, mealTypes = listOf("Desayuno")),
-            FoodOption("2", "Huevos revueltos", 155, protein = 10.6, carbs = 1.6, fat = 11.1, fiber = 0.0, mealTypes = listOf("Desayuno")),
-            FoodOption("3", "Pan integral", 247, protein = 13.0, carbs = 41.0, fat = 4.2, fiber = 7.0, mealTypes = listOf("Desayuno")),
-            FoodOption("4", "Yogur griego", 59, protein = 10.0, carbs = 3.6, fat = 0.4, fiber = 0.0, mealTypes = listOf("Desayuno")),
-            FoodOption("5", "Plátano", 89, protein = 1.1, carbs = 22.8, fat = 0.3, fiber = 2.6, mealTypes = listOf("Desayuno", "Snack"))
-        )
-        "Almuerzo" -> listOf(
-            FoodOption("6", "Pechuga de pollo", 165, protein = 31.0, carbs = 0.0, fat = 3.6, fiber = 0.0, mealTypes = listOf("Almuerzo", "Cena")),
-            FoodOption("7", "Arroz integral", 123, protein = 2.6, carbs = 23.0, fat = 1.0, fiber = 1.8, mealTypes = listOf("Almuerzo", "Cena")),
-            FoodOption("8", "Brócoli", 34, protein = 2.8, carbs = 7.0, fat = 0.4, fiber = 2.6, mealTypes = listOf("Almuerzo", "Cena")),
-            FoodOption("9", "Ensalada mixta", 20, protein = 1.4, carbs = 3.6, fat = 0.2, fiber = 1.8, mealTypes = listOf("Almuerzo", "Cena")),
-            FoodOption("10", "Quinoa", 368, protein = 14.1, carbs = 64.2, fat = 6.1, fiber = 7.0, mealTypes = listOf("Almuerzo", "Cena"))
-        )
-        "Cena" -> listOf(
-            FoodOption("11", "Salmón", 208, protein = 25.4, carbs = 0.0, fat = 12.4, fiber = 0.0, mealTypes = listOf("Cena")),
-            FoodOption("12", "Verduras al vapor", 35, protein = 1.5, carbs = 7.0, fat = 0.3, fiber = 3.0, mealTypes = listOf("Cena")),
-            FoodOption("13", "Batata", 86, protein = 1.6, carbs = 20.1, fat = 0.1, fiber = 3.0, mealTypes = listOf("Cena")),
-            FoodOption("14", "Ensalada de espinacas", 23, protein = 2.9, carbs = 3.6, fat = 0.4, fiber = 2.2, mealTypes = listOf("Cena"))
-        )
-        "Snack" -> listOf(
-            FoodOption("15", "Almendras", 579, protein = 21.2, carbs = 21.6, fat = 49.9, fiber = 12.5, mealTypes = listOf("Snack")),
-            FoodOption("16", "Manzana", 52, protein = 0.3, carbs = 13.8, fat = 0.2, fiber = 2.4, mealTypes = listOf("Snack")),
-            FoodOption("17", "Yogur natural", 61, protein = 3.5, carbs = 4.7, fat = 3.3, fiber = 0.0, mealTypes = listOf("Snack")),
-            FoodOption("18", "Nueces", 654, protein = 15.2, carbs = 13.7, fat = 65.2, fiber = 6.7, mealTypes = listOf("Snack"))
-        )
-        else -> emptyList()
-    }
-}
-
-fun getCookbookRecipes(mealType: String): List<CookbookRecipe> {
-    return when (mealType) {
-        "Desayuno" -> listOf(
-            CookbookRecipe("1", "Pancakes de avena", null, 320, "15 min", "Fácil", mealTypes = listOf("Desayuno")),
-            CookbookRecipe("2", "Smoothie verde", null, 180, "5 min", "Fácil", mealTypes = listOf("Desayuno"))
-        )
-        "Almuerzo" -> listOf(
-            CookbookRecipe("3", "Ensalada César", null, 280, "20 min", "Medio", mealTypes = listOf("Almuerzo")),
-            CookbookRecipe("4", "Pasta con vegetales", null, 420, "25 min", "Fácil", mealTypes = listOf("Almuerzo"))
-        )
-        "Cena" -> listOf(
-            CookbookRecipe("5", "Salmón al horno", null, 350, "30 min", "Medio", mealTypes = listOf("Cena")),
-            CookbookRecipe("6", "Pollo con verduras", null, 310, "35 min", "Fácil", mealTypes = listOf("Cena"))
-        )
-        else -> emptyList()
-    }
-}
-
-fun getOnlineRecipes(mealType: String): List<Recipe> {
-    return when (mealType) {
-        "Desayuno" -> listOf(
-            Recipe("1", "Tostadas francesas", null, 20, 2, 280, 4.5, false, listOf("Desayuno")),
-            Recipe("2", "Bowl de açai", null, 10, 1, 320, 4.8, true, listOf("Desayuno"))
-        )
-        "Almuerzo" -> listOf(
-            Recipe("3", "Tacos de pescado", null, 25, 4, 380, 4.2, false, listOf("Almuerzo")),
-            Recipe("4", "Buddha bowl", null, 15, 2, 420, 4.6, true, listOf("Almuerzo"))
-        )
-        "Cena" -> listOf(
-            Recipe("5", "Risotto de champiñones", null, 40, 4, 450, 4.3, false, listOf("Cena")),
-            Recipe("6", "Curry de lentejas", null, 35, 6, 380, 4.7, true, listOf("Cena"))
-        )
-        else -> emptyList()
     }
 }
