@@ -1,3 +1,8 @@
+
 <resources>
-    <string name="app_name">limbus_client2</string>
+    <string name="app_name">Limbus</string>
+    <string name="welcome_title">¡Bienvenido/a a Limbus!</string>
+    <string name="welcome_description">Tu compañero inteligente para una nutrición cardiovascular y un estilo de vida más sano.</string>
+    <string name="skip_button">Saltar</string>
+    <string name="next_button">Siguiente</string>
 </resources>
