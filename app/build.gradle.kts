@@ -41,6 +41,8 @@ android {
 
 dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.0") // Use the latest version
+    implementation("androidx.navigation:navigation-compose:2.9.0")
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
     // Your other dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -57,4 +59,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    //material 3
+    implementation("com.google.android.material:material:1.12.0")
 }

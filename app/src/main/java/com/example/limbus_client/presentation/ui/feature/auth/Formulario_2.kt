@@ -30,10 +30,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,15 +40,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.limbus_client.presentation.ui.component.StepIndicator
+import com.example.limbus_client.presentation.viewmodel.PersonalDataFormViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Formulario_2(
     onContinueClicked: () -> Unit,
     onBackClicked: () -> Unit,
-    onLoginClicked: () -> Unit
+    onLoginClicked: () -> Unit,
+    viewModel: PersonalDataFormViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,14 +98,6 @@ fun Formulario_2(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Campos del formulario
-            var fechaNacimiento by remember { mutableStateOf("16/06/2006") }
-            var genero by remember { mutableStateOf("Masculino") }
-            var altura by remember { mutableStateOf("185") }
-            var peso by remember { mutableStateOf("90") }
-            var expanded by remember { mutableStateOf(false) }
-            val generos = listOf("Masculino", "Femenino", "Prefiero no decirlo")
-
             // Campo de fecha de nacimiento
             Text(
                 text = "Fecha de nacimiento",
@@ -111,8 +106,8 @@ fun Formulario_2(
             )
 
             OutlinedTextField(
-                value = fechaNacimiento,
-                onValueChange = { fechaNacimiento = it },
+                value = uiState.fechaNacimiento,
+                onValueChange = { viewModel.onFechaNacimientoChanged(it) },
                 placeholder = { Text("DD/MM/AAAA") },
                 leadingIcon = {
                     Icon(
@@ -129,8 +124,18 @@ fun Formulario_2(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                isError = uiState.fechaNacimientoError != null
             )
+
+            if (uiState.fechaNacimientoError != null) {
+                Text(
+                    text = uiState.fechaNacimientoError!!,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.Start).padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -143,7 +148,7 @@ fun Formulario_2(
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = genero,
+                    value = uiState.genero,
                     onValueChange = {},
                     readOnly = true,
                     leadingIcon = {
@@ -153,32 +158,41 @@ fun Formulario_2(
                         )
                     },
                     trailingIcon = {
-                        IconButton(onClick = { expanded = !expanded }) {
+                        IconButton(onClick = { viewModel.toggleGeneroDropdown() }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = if (expanded) "Cerrar" else "Abrir"
+                                contentDescription = if (uiState.generoExpanded) "Cerrar" else "Abrir"
                             )
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    isError = uiState.generoError != null
                 )
 
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
+                    expanded = uiState.generoExpanded,
+                    onDismissRequest = { viewModel.toggleGeneroDropdown() },
                     modifier = Modifier.fillMaxWidth(0.9f)
                 ) {
-                    generos.forEach { item ->
+                    uiState.generosList.forEach { item ->
                         DropdownMenuItem(
                             text = { Text(text = item) },
                             onClick = {
-                                genero = item
-                                expanded = false
+                                viewModel.onGeneroChanged(item)
                             }
                         )
                     }
                 }
+            }
+
+            if (uiState.generoError != null) {
+                Text(
+                    text = uiState.generoError!!,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.Start).padding(start = 16.dp, top = 4.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -191,8 +205,8 @@ fun Formulario_2(
             )
 
             OutlinedTextField(
-                value = altura,
-                onValueChange = { if (it.all { char -> char.isDigit() }) altura = it },
+                value = uiState.altura,
+                onValueChange = { viewModel.onAlturaChanged(it) },
                 placeholder = { Text("Ingrese su altura en cm") },
                 leadingIcon = {
                     Icon(
@@ -207,8 +221,18 @@ fun Formulario_2(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                isError = uiState.alturaError != null
             )
+
+            if (uiState.alturaError != null) {
+                Text(
+                    text = uiState.alturaError!!,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.Start).padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -220,8 +244,8 @@ fun Formulario_2(
             )
 
             OutlinedTextField(
-                value = peso,
-                onValueChange = { if (it.all { char -> char.isDigit() }) peso = it },
+                value = uiState.peso,
+                onValueChange = { viewModel.onPesoChanged(it) },
                 placeholder = { Text("Ingrese su peso en kg") },
                 leadingIcon = {
                     Icon(
@@ -236,8 +260,18 @@ fun Formulario_2(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                isError = uiState.pesoError != null
             )
+
+            if (uiState.pesoError != null) {
+                Text(
+                    text = uiState.pesoError!!,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.Start).padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -271,7 +305,11 @@ fun Formulario_2(
                     }
 
                     Text(
-                        text = "Tu Índice de Masa Corporal es de ####",
+                        text = if (uiState.imc > 0) {
+                            "Tu Índice de Masa Corporal es de ${String.format("%.1f", uiState.imc)} - ${uiState.imcCategoria}"
+                        } else {
+                            "Tu Índice de Masa Corporal es de ####"
+                        },
                         fontSize = 14.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(top = 4.dp)
@@ -283,16 +321,31 @@ fun Formulario_2(
 
             // Botón de continuar
             Button(
-                onClick = onContinueClicked,
+                onClick = {
+                    if (viewModel.validateForm()) {
+                        onContinueClicked()
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF3F51B5)
                 ),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                enabled = uiState.isFormValid
             ) {
                 Text(
                     text = "Continuar",
                     modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            if (uiState.message != null) {
+                Text(
+                    text = uiState.message!!,
+                    color = if (uiState.message!!.contains("error", ignoreCase = true)) Color.Red else Color.Green,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
 

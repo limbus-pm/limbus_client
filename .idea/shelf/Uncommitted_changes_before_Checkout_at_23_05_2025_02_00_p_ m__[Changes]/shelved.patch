@@ -1,0 +1,1741 @@
+Index: .idea/deploymentTargetSelector.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"deploymentTargetSelector\">\r\n    <selectionStates>\r\n      <SelectionState runConfigName=\"limbus_client2.app\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"MainActivity (1)\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n      </SelectionState>\r\n      <SelectionState runConfigName=\"MainActivity\">\r\n        <option name=\"selectionMode\" value=\"DROPDOWN\" />\r\n      </SelectionState>\r\n    </selectionStates>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/deploymentTargetSelector.xml b/.idea/deploymentTargetSelector.xml
+--- a/.idea/deploymentTargetSelector.xml	(revision ca8b0ee5b88371da9870e61889750841cf9545a7)
++++ b/.idea/deploymentTargetSelector.xml	(date 1747868915066)
+@@ -8,7 +8,16 @@
+       <SelectionState runConfigName="MainActivity (1)">
+         <option name="selectionMode" value="DROPDOWN" />
+       </SelectionState>
+-      <SelectionState runConfigName="MainActivity">
++      <SelectionState runConfigName="MainActivity (2)">
++        <option name="selectionMode" value="DROPDOWN" />
++      </SelectionState>
++      <SelectionState runConfigName="MainActivity (3)">
++        <option name="selectionMode" value="DROPDOWN" />
++      </SelectionState>
++      <SelectionState runConfigName="MainActivity (4)">
++        <option name="selectionMode" value="DROPDOWN" />
++      </SelectionState>
++      <SelectionState runConfigName="MainActivity (5)">
+         <option name="selectionMode" value="DROPDOWN" />
+       </SelectionState>
+     </selectionStates>
+Index: app/src/main/java/com/example/limbus_client/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.limbus_client2\r\n\r\nimport android.os.Bundle\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.activity.enableEdgeToEdge\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.material3.Surface\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.mutableStateOf\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.ui.Modifier\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Formulario_1\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Formulario_2\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Formulario_3\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Formulario_4\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Formulario_5\r\nimport com.example.limbus_client.presentation.ui.feature.auth.LoginScreen\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Presentacion_1\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Presentacion_2\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Presentacion_3\r\nimport com.example.limbus_client.presentation.ui.feature.auth.Presentacion_4\r\nimport com.example.limbus_client.presentation.ui.feature.auth.RegistrationCompletedScreen\r\nimport com.example.limbus_client.presentation.ui.feature.auth.WelcomeScreen\r\nimport com.example.limbus_client2.ui.theme.Limbus_client2Theme\r\n\r\nclass MainActivity : ComponentActivity() {\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        enableEdgeToEdge()\r\n        setContent {\r\n            Limbus_client2Theme {\r\n                Surface(\r\n                    modifier = Modifier.fillMaxSize(),\r\n                    color = MaterialTheme.colorScheme.background\r\n                ) {\r\n                    // Usar un state hoisting para controlar la navegación\r\n                    val currentScreenState = remember { mutableStateOf(\"welcome\") }\r\n\r\n                    when (currentScreenState.value) {\r\n                        \"welcome\" -> {\r\n                            WelcomeScreen(\r\n                                onStartClicked = {\r\n                                    currentScreenState.value = \"presentacion1\"\r\n                                    println(\"Navegando a presentacion1\")\r\n                                },\r\n                                onLoginClicked = {\r\n                                    // Si el usuario ya tiene cuenta, ir a la pantalla de login\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Navegando a login\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"presentacion1\" -> {\r\n                            Presentacion_1(\r\n                                onStartClicked = {\r\n                                    // Navegar a la segunda pantalla de presentación\r\n                                    currentScreenState.value = \"presentacion2\"\r\n                                    println(\"Navegando a presentacion2\")\r\n                                },\r\n                                onLoginClicked = {\r\n                                    // Si el usuario hace clic en Saltar, ir directamente a la pantalla principal\r\n                                    currentScreenState.value = \"main\"\r\n                                    println(\"Saltar a pantalla principal\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"presentacion2\" -> {\r\n                            Presentacion_2(\r\n                                onNextClicked = {\r\n                                    // Navegar a la tercera pantalla de presentación\r\n                                    currentScreenState.value = \"presentacion3\"\r\n                                    println(\"Navegando a presentacion3\")\r\n                                },\r\n                                onSkipClicked = {\r\n                                    // Si el usuario hace clic en Saltar, ir directamente a la pantalla principal\r\n                                    currentScreenState.value = \"main\"\r\n                                    println(\"Saltar a pantalla principal\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"presentacion3\" -> {\r\n                            Presentacion_3(\r\n                                onFinishClicked = {\r\n                                    // Navegar a la cuarta pantalla de presentación\r\n                                    currentScreenState.value = \"presentacion4\"\r\n                                    println(\"Navegando a presentacion4\")\r\n                                },\r\n                                onSkipClicked = {\r\n                                    // Si el usuario hace clic en Saltar, ir directamente a la pantalla principal\r\n                                    currentScreenState.value = \"main\"\r\n                                    println(\"Saltar a pantalla principal\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"presentacion4\" -> {\r\n                            Presentacion_4(\r\n                                onFinishClicked = {\r\n                                    // Al terminar el onboarding, ir a la pantalla de registro/login\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Navegando a login\")\r\n                                },\r\n                                onSkipClicked = {\r\n                                    // Si el usuario hace clic en Saltar, ir directamente a la pantalla principal\r\n                                    currentScreenState.value = \"main\"\r\n                                    println(\"Saltar a pantalla principal\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"login\" -> {\r\n                            LoginScreen(\r\n                                onLoginClicked = {\r\n                                    // Ahora el login nos lleva al formulario de registro\r\n                                    currentScreenState.value = \"formulario1\"\r\n                                    println(\"Navegando a formulario de registro\")\r\n                                },\r\n                                onRegisterClicked = {\r\n                                    // El botón de registro también lleva al formulario\r\n                                    currentScreenState.value = \"formulario1\"\r\n                                    println(\"Navegando a formulario de registro\")\r\n                                },\r\n                                onForgotPasswordClicked = {\r\n                                    // Navegar a la pantalla de recuperación de contraseña\r\n                                    currentScreenState.value = \"forgot_password\"\r\n                                    println(\"Navegando a recuperación de contraseña\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"formulario1\" -> {\r\n                            Formulario_1(\r\n                                onContinueClicked = {\r\n                                    // Ahora al completar el formulario 1, vamos al formulario 2\r\n                                    currentScreenState.value = \"formulario2\"\r\n                                    println(\"Navegando a formulario 2\")\r\n                                },\r\n                                onBackClicked = {\r\n                                    // Volver a la pantalla anterior\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Volviendo a la pantalla de login\")\r\n                                },\r\n                                onLoginClicked = {\r\n                                    // Si ya tiene cuenta, volver a login\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Redirigiendo a login\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"formulario2\" -> {\r\n                            Formulario_2(\r\n                                onContinueClicked = {\r\n                                    // Al completar el formulario 2, vamos al formulario 3\r\n                                    currentScreenState.value = \"formulario3\"\r\n                                    println(\"Navegando a formulario 3\")\r\n                                },\r\n                                onBackClicked = {\r\n                                    // Volver al formulario 1\r\n                                    currentScreenState.value = \"formulario1\"\r\n                                    println(\"Volviendo al formulario 1\")\r\n                                },\r\n                                onLoginClicked = {\r\n                                    // Si ya tiene cuenta, volver a login\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Redirigiendo a login\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"formulario3\" -> {\r\n                            Formulario_3(\r\n                                onFinishClicked = {\r\n                                    // Al completar el formulario 3, vamos al formulario 4\r\n                                    currentScreenState.value = \"formulario4\"\r\n                                    println(\"Navegando a formulario 4\")\r\n                                },\r\n                                onBackClicked = {\r\n                                    // Volver al formulario 2\r\n                                    currentScreenState.value = \"formulario2\"\r\n                                    println(\"Volviendo al formulario 2\")\r\n                                },\r\n                                onLoginClicked = {\r\n                                    // Si ya tiene cuenta, volver a login\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Redirigiendo a login\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"formulario4\" -> {\r\n                            Formulario_4(\r\n                                onFinishClicked = {\r\n                                    // Modificado: Al completar el formulario 4, vamos al formulario 5\r\n                                    currentScreenState.value = \"formulario5\"\r\n                                    println(\"Navegando a formulario 5\")\r\n                                },\r\n                                onBackClicked = {\r\n                                    // Volver al formulario 3\r\n                                    currentScreenState.value = \"formulario3\"\r\n                                    println(\"Volviendo al formulario 3\")\r\n                                },\r\n                                onLoginClicked = {\r\n                                    // Si ya tiene cuenta, volver a login\r\n                                    currentScreenState.value = \"login\"\r\n                                    println(\"Redirigiendo a login\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"formulario5\" -> {\r\n                            // Formulario 5 para preferencias de la aplicación\r\n                            Formulario_5(\r\n                                onCompleteRegistrationClicked = {\r\n                                    // MODIFICADO: Al completar el formulario 5, vamos a la pantalla de registro completado\r\n                                    currentScreenState.value = \"registration_completed\"\r\n                                    println(\"Registro completado, navegando a pantalla de confirmación\")\r\n                                },\r\n                                onBackClicked = {\r\n                                    // Volver al formulario 4\r\n                                    currentScreenState.value = \"formulario4\"\r\n                                    println(\"Volviendo al formulario 4\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"registration_completed\" -> {\r\n                            // NUEVO: Pantalla de registro completado\r\n                            RegistrationCompletedScreen(\r\n                                onContinueClicked = {\r\n                                    // Al hacer clic en continuar, vamos a la pantalla principal\r\n                                    currentScreenState.value = \"main\"\r\n                                    println(\"Navegando a pantalla principal\")\r\n                                }\r\n                            )\r\n                        }\r\n                        \"register\" -> {\r\n                            // Esta ruta ya no se usaría, pero la dejamos por compatibilidad\r\n                            // Redirigimos a nuestro nuevo formulario\r\n                            currentScreenState.value = \"formulario1\"\r\n                        }\r\n                        \"forgot_password\" -> {\r\n                            // Aquí iría tu pantalla de recuperación de contraseña\r\n                            // Por ahora, mostramos algo simple\r\n                            Text(\r\n                                text = \"Recuperación de Contraseña\",\r\n                                style = MaterialTheme.typography.headlineLarge,\r\n                                modifier = Modifier.fillMaxSize()\r\n                            )\r\n                        }\r\n                        \"main\" -> {\r\n                            // Aquí iría tu pantalla principal de la aplicación\r\n                            // Por ahora, mostramos algo simple para demostrar que llegamos a esta pantalla\r\n                            Text(\r\n                                text = \"Pantalla Principal\",\r\n                                style = MaterialTheme.typography.headlineLarge,\r\n                                modifier = Modifier.fillMaxSize()\r\n                            )\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/limbus_client/MainActivity.kt b/app/src/main/java/com/example/limbus_client/MainActivity.kt
+--- a/app/src/main/java/com/example/limbus_client/MainActivity.kt	(revision ca8b0ee5b88371da9870e61889750841cf9545a7)
++++ b/app/src/main/java/com/example/limbus_client/MainActivity.kt	(date 1747864059265)
+@@ -23,6 +23,8 @@
+ import com.example.limbus_client.presentation.ui.feature.auth.Presentacion_4
+ import com.example.limbus_client.presentation.ui.feature.auth.RegistrationCompletedScreen
+ import com.example.limbus_client.presentation.ui.feature.auth.WelcomeScreen
++import com.example.limbus_client.presentation.ui.feature.dashboard.AddFoodScreen
++import com.example.limbus_client.presentation.ui.feature.dashboard.FoodDiaryScreen
+ import com.example.limbus_client2.ui.theme.Limbus_client2Theme
+ 
+ class MainActivity : ComponentActivity() {
+@@ -38,6 +40,9 @@
+                     // Usar un state hoisting para controlar la navegación
+                     val currentScreenState = remember { mutableStateOf("welcome") }
+ 
++                    // Para pasar datos entre pantallas
++                    val selectedMealType = remember { mutableStateOf("Desayuno") }
++
+                     when (currentScreenState.value) {
+                         "welcome" -> {
+                             WelcomeScreen(
+@@ -222,9 +227,31 @@
+                             // NUEVO: Pantalla de registro completado
+                             RegistrationCompletedScreen(
+                                 onContinueClicked = {
+-                                    // Al hacer clic en continuar, vamos a la pantalla principal
++                                    // MODIFICADO: Al hacer clic en continuar, vamos a la pantalla del diario de comidas
++                                    currentScreenState.value = "food_diary"
++                                    println("Navegando a pantalla de diario de comidas")
++                                }
++                            )
++                        }
++                        "food_diary" -> {
++                            // NUEVO: Pantalla de diario de comidas
++                            FoodDiaryScreen(
++                                onBackToMainClicked = {
++                                    // Volver a la pantalla principal
+                                     currentScreenState.value = "main"
+-                                    println("Navegando a pantalla principal")
++                                    println("Volviendo a la pantalla principal")
++                                },
++                                onProfileClicked = {
++                                    // Navegar al perfil del usuario
++                                    currentScreenState.value = "profile"
++                                    println("Navegando al perfil del usuario")
++                                },
++                                onAddFoodClicked = {
++                                    // MODIFICADO: Al hacer clic en añadir comida, almacenamos el tipo seleccionado
++                                    // y navegamos a la pantalla de añadir alimentos
++                                    selectedMealType.value = "Desayuno" // Valor por defecto
++                                    currentScreenState.value = "add_food"
++                                    println("Navegando a añadir alimentos")
+                                 }
+                             )
+                         }
+@@ -243,10 +270,30 @@
+                             )
+                         }
+                         "main" -> {
+-                            // Aquí iría tu pantalla principal de la aplicación
+-                            // Por ahora, mostramos algo simple para demostrar que llegamos a esta pantalla
++                            // Redirigimos al diario de comidas ya que esa es ahora nuestra pantalla principal
++                            currentScreenState.value = "food_diary"
++                        }
++                        "add_food" -> {
++                            // NUEVO: Pantalla para añadir alimentos con selección de tipo de comida
++                            AddFoodScreen(
++                                onBackClicked = {
++                                    // Volver al diario de comidas
++                                    currentScreenState.value = "food_diary"
++                                    println("Volviendo al diario de comidas")
++                                },
++                                onFoodSelected = { foodType ->
++                                    // Aquí podrías hacer algo con el tipo de comida seleccionado
++                                    println("Seleccionado tipo de comida: $foodType")
++                                    // Por ahora volvemos al diario de comidas después de seleccionar
++                                    currentScreenState.value = "food_diary"
++                                }
++                            )
++                        }
++                        "profile" -> {
++                            // Aquí iría la pantalla del perfil del usuario
++                            // Por ahora, mostramos algo simple
+                             Text(
+-                                text = "Pantalla Principal",
++                                text = "Perfil de Usuario",
+                                 style = MaterialTheme.typography.headlineLarge,
+                                 modifier = Modifier.fillMaxSize()
+                             )
+Index: app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/FoodDiaryScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/FoodDiaryScreen.kt b/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/FoodDiaryScreen.kt
+new file mode 100644
+--- /dev/null	(date 1747864228217)
++++ b/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/FoodDiaryScreen.kt	(date 1747864228217)
+@@ -0,0 +1,397 @@
++package com.example.limbus_client.presentation.ui.feature.dashboard
++
++import androidx.compose.foundation.background
++import androidx.compose.foundation.layout.Arrangement
++import androidx.compose.foundation.layout.Box
++import androidx.compose.foundation.layout.Column
++import androidx.compose.foundation.layout.Row
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxSize
++import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
++import androidx.compose.foundation.layout.width
++import androidx.compose.foundation.rememberScrollState
++import androidx.compose.foundation.shape.CircleShape
++import androidx.compose.foundation.shape.RoundedCornerShape
++import androidx.compose.foundation.verticalScroll
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.filled.Add
++import androidx.compose.material.icons.filled.ArrowBack
++import androidx.compose.material.icons.filled.ArrowForward
++import androidx.compose.material.icons.filled.Info
++import androidx.compose.material3.Card
++import androidx.compose.material3.CardDefaults
++import androidx.compose.material3.FloatingActionButton
++import androidx.compose.material3.Icon
++import androidx.compose.material3.IconButton
++import androidx.compose.material3.MaterialTheme
++import androidx.compose.material3.NavigationBar
++import androidx.compose.material3.NavigationBarItem
++import androidx.compose.material3.Scaffold
++import androidx.compose.material3.Surface
++import androidx.compose.material3.Text
++import androidx.compose.material3.TextButton
++import androidx.compose.runtime.Composable
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.clip
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.res.painterResource
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
++
++@Composable
++fun FoodDiaryScreen(
++    onBackToMainClicked: () -> Unit,
++    onProfileClicked: () -> Unit,
++    onAddFoodClicked: () -> Unit
++) {
++    Scaffold(
++        bottomBar = {
++            NavigationBar {
++                NavigationBarItem(
++                    selected = false,
++                    onClick = { },
++                    icon = { Icon(painterResource(id = android.R.drawable.ic_menu_search), contentDescription = "Buscar") },
++                    label = { Text("Busca") }
++                )
++                NavigationBarItem(
++                    selected = false,
++                    onClick = { },
++                    icon = { Icon(painterResource(id = android.R.drawable.ic_menu_view), contentDescription = "Menú") },
++                    label = { Text("Menú") }
++                )
++                NavigationBarItem(
++                    selected = true,
++                    onClick = { },
++                    icon = { Icon(painterResource(id = android.R.drawable.ic_menu_edit), contentDescription = "Diario") },
++                    label = { Text("Diario") }
++                )
++                NavigationBarItem(
++                    selected = false,
++                    onClick = { },
++                    icon = { Icon(painterResource(id = android.R.drawable.ic_menu_help), contentDescription = "Aprende") },
++                    label = { Text("Aprende") }
++                )
++                NavigationBarItem(
++                    selected = false,
++                    onClick = onProfileClicked,
++                    icon = { Icon(painterResource(id = android.R.drawable.ic_menu_myplaces), contentDescription = "Perfil") },
++                    label = { Text("Perfil") }
++                )
++            }
++        }
++    ) { paddingValues ->
++        Surface(
++            modifier = Modifier
++                .fillMaxSize()
++                .padding(paddingValues),
++            color = MaterialTheme.colorScheme.background
++        ) {
++            Column(
++                modifier = Modifier
++                    .fillMaxSize()
++                    .padding(16.dp)
++            ) {
++                // Header con título y navegación
++                Row(
++                    modifier = Modifier.fillMaxWidth(),
++                    horizontalArrangement = Arrangement.SpaceBetween,
++                    verticalAlignment = Alignment.CenterVertically
++                ) {
++                    Text(
++                        text = "Diario",
++                        fontSize = 24.sp,
++                        fontWeight = FontWeight.Bold
++                    )
++
++                    Row(
++                        verticalAlignment = Alignment.CenterVertically
++                    ) {
++                        IconButton(onClick = { /* Día anterior */ }) {
++                            Icon(Icons.Default.ArrowBack, contentDescription = "Día anterior")
++                        }
++
++                        Text(
++                            text = "21 de mayo",
++                            fontSize = 16.sp,
++                            fontWeight = FontWeight.Medium
++                        )
++
++                        IconButton(onClick = { /* Día siguiente */ }) {
++                            Icon(Icons.Default.ArrowForward, contentDescription = "Día siguiente")
++                        }
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(16.dp))
++
++                // Tarjeta de calorías
++                Card(
++                    modifier = Modifier
++                        .fillMaxWidth()
++                        .padding(vertical = 8.dp),
++                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
++                    shape = RoundedCornerShape(16.dp)
++                ) {
++                    Box(
++                        modifier = Modifier
++                            .fillMaxWidth()
++                            .padding(16.dp)
++                    ) {
++                        Column(
++                            horizontalAlignment = Alignment.CenterHorizontally,
++                            modifier = Modifier.fillMaxWidth()
++                        ) {
++                            // Círculo de calorías
++                            Box(
++                                modifier = Modifier
++                                    .size(150.dp)
++                                    .clip(CircleShape)
++                                    .background(Color(0xFFEEEEFF)),
++                                contentAlignment = Alignment.Center
++                            ) {
++                                Column(
++                                    horizontalAlignment = Alignment.CenterHorizontally
++                                ) {
++                                    Row(
++                                        verticalAlignment = Alignment.Bottom
++                                    ) {
++                                        Text(
++                                            text = "0",
++                                            fontSize = 32.sp,
++                                            fontWeight = FontWeight.Bold
++                                        )
++
++                                        Spacer(modifier = Modifier.width(4.dp))
++
++                                        Text(
++                                            text = "kcal",
++                                            fontSize = 16.sp,
++                                            color = Color.Gray
++                                        )
++                                    }
++
++                                    Text(
++                                        text = "consumidas",
++                                        fontSize = 14.sp,
++                                        color = Color.Gray
++                                    )
++                                }
++                            }
++
++                            Spacer(modifier = Modifier.height(16.dp))
++
++                            // Información de macronutrientes
++                            Row(
++                                modifier = Modifier.fillMaxWidth(),
++                                horizontalArrangement = Arrangement.SpaceEvenly
++                            ) {
++                                MacroNutrientInfo(name = "Carbo", value = "0/250 gr")
++                                MacroNutrientInfo(name = "Proteínas", value = "0/188 gr")
++                                MacroNutrientInfo(name = "Grasas", value = "0/83 gr")
++                            }
++
++                            Spacer(modifier = Modifier.height(8.dp))
++
++                            Row(
++                                verticalAlignment = Alignment.CenterVertically
++                            ) {
++                                Icon(
++                                    Icons.Default.Info,
++                                    contentDescription = "Información",
++                                    tint = Color.Gray,
++                                    modifier = Modifier.size(16.dp)
++                                )
++
++                                Spacer(modifier = Modifier.width(4.dp))
++
++                                Text(
++                                    text = "¡Pásate a ekilu+ para ver tu balance calórico y macros!",
++                                    fontSize = 12.sp,
++                                    color = Color.Gray
++                                )
++                            }
++                        }
++
++                        // Botón añadir en la esquina superior derecha
++                        FloatingActionButton(
++                            onClick = { /* Añadir alimento */ },
++                            modifier = Modifier
++                                .align(Alignment.TopEnd)
++                                .size(40.dp),
++                            containerColor = Color(0xFFFF7043)
++                        ) {
++                            Icon(
++                                Icons.Default.Add,
++                                contentDescription = "Añadir",
++                                tint = Color.White
++                            )
++                        }
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(16.dp))
++
++                // Lista de comidas del día
++                Column(
++                    modifier = Modifier
++                        .fillMaxWidth()
++                        .verticalScroll(rememberScrollState())
++                ) {
++                    // Desayuno
++                    MealCard(
++                        mealName = "Desayuno",
++                        onAddClicked = onAddFoodClicked
++                    )
++
++                    Spacer(modifier = Modifier.height(8.dp))
++
++                    // Almuerzo
++                    MealCard(
++                        mealName = "Almuerzo",
++                        onAddClicked = onAddFoodClicked
++                    )
++
++                    Spacer(modifier = Modifier.height(8.dp))
++
++                    // Comida
++                    MealCard(
++                        mealName = "Comida",
++                        onAddClicked = onAddFoodClicked
++                    )
++
++                    Spacer(modifier = Modifier.height(8.dp))
++
++                    // Merienda (Snack)
++                    MealCard(
++                        mealName = "Merienda",
++                        onAddClicked = onAddFoodClicked
++                    )
++
++                    Spacer(modifier = Modifier.height(8.dp))
++
++                    // Cena
++                    MealCard(
++                        mealName = "Cena",
++                        onAddClicked = onAddFoodClicked
++                    )
++
++                    Spacer(modifier = Modifier.height(8.dp))
++
++                    // Snacks adicionales
++                    MealCard(
++                        mealName = "Snacks",
++                        onAddClicked = onAddFoodClicked
++                    )
++
++                    // Espacio adicional en la parte inferior para asegurar que todo sea visible
++                    Spacer(modifier = Modifier.height(16.dp))
++                }
++            }
++        }
++    }
++}
++
++@Composable
++fun MacroNutrientInfo(
++    name: String,
++    value: String
++) {
++    Column(
++        horizontalAlignment = Alignment.CenterHorizontally
++    ) {
++        Text(
++            text = name,
++            fontSize = 14.sp,
++            fontWeight = FontWeight.Medium
++        )
++
++        Spacer(modifier = Modifier.height(4.dp))
++
++        Box(
++            modifier = Modifier
++                .fillMaxWidth(0.25f)
++                .height(4.dp)
++                .background(Color(0xFFEEEEEE))
++        )
++
++        Spacer(modifier = Modifier.height(4.dp))
++
++        Text(
++            text = value,
++            fontSize = 12.sp,
++            color = Color.Gray
++        )
++    }
++}
++
++@Composable
++fun MealCard(
++    mealName: String,
++    onAddClicked: () -> Unit
++) {
++    Card(
++        modifier = Modifier
++            .fillMaxWidth()
++            .padding(vertical = 4.dp),
++        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
++        shape = RoundedCornerShape(12.dp)
++    ) {
++        Row(
++            modifier = Modifier
++                .fillMaxWidth()
++                .padding(16.dp),
++            horizontalArrangement = Arrangement.SpaceBetween,
++            verticalAlignment = Alignment.CenterVertically
++        ) {
++            Row(
++                verticalAlignment = Alignment.CenterVertically
++            ) {
++                Icon(
++                    painterResource(id = android.R.drawable.ic_menu_today),
++                    contentDescription = null,
++                    tint = Color(0xFF673AB7),
++                    modifier = Modifier.size(24.dp)
++                )
++
++                Spacer(modifier = Modifier.width(16.dp))
++
++                Column {
++                    Text(
++                        text = mealName,
++                        fontSize = 16.sp,
++                        fontWeight = FontWeight.Medium
++                    )
++
++                    TextButton(
++                        onClick = onAddClicked,
++                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
++                    ) {
++                        Text(
++                            text = "Añade comida",
++                            color = Color(0xFF673AB7),
++                            fontSize = 14.sp
++                        )
++                    }
++                }
++            }
++
++            FloatingActionButton(
++                onClick = onAddClicked,
++                modifier = Modifier.size(32.dp),
++                containerColor = Color(0xFF673AB7)
++            ) {
++                Icon(
++                    Icons.Default.Add,
++                    contentDescription = "Añadir comida",
++                    tint = Color.White,
++                    modifier = Modifier.size(16.dp)
++                )
++            }
++        }
++    }
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/GetPortionTypes.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/GetPortionTypes.kt b/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/GetPortionTypes.kt
+new file mode 100644
+--- /dev/null	(date 1747976766123)
++++ b/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/GetPortionTypes.kt	(date 1747976766123)
+@@ -0,0 +1,448 @@
++package com.example.limbus_client.presentation.ui.feature.meal_planning
++// Agregar estos imports adicionales al archivo existente
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxHeight
++import androidx.compose.foundation.layout.wrapContentHeight
++import androidx.compose.foundation.text.KeyboardOptions
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.filled.Remove
++import androidx.compose.material3.AlertDialog
++import androidx.compose.material3.Button
++import androidx.compose.material3.ButtonDefaults
++import androidx.compose.material3.Divider
++import androidx.compose.material3.OutlinedButton
++import androidx.compose.material3.OutlinedTextField
++import androidx.compose.material3.TextButton
++import androidx.compose.runtime.mutableIntStateOf
++import androidx.compose.runtime.mutableDoubleStateOf
++import androidx.compose.ui.text.input.KeyboardType
++import androidx.compose.ui.unit.sp
++import kotlin.math.roundToInt
++
++// Datos adicionales para el modal
++data class PortionType(
++    val name: String,
++    val grams: Double,
++    val description: String
++)
++
++data class FoodRegistration(
++    val food: FoodOption,
++    val quantity: Double,
++    val portionType: PortionType,
++    val mealType: String,
++    val totalCalories: Int,
++    val totalProtein: Double,
++    val totalCarbs: Double,
++    val totalFat: Double,
++    val totalFiber: Double
++)
++
++// Función para obtener tipos de porción según el alimento
++fun getPortionTypes(food: FoodOption): List<PortionType> {
++    return when {
++        food.name.contains("Huevo", ignoreCase = true) -> listOf(
++            PortionType("Unidad", 50.0, "1 huevo mediano"),
++            PortionType("100 gramos", 100.0, "Medida estándar"),
++            PortionType("Clara", 33.0, "Solo la clara"),
++            PortionType("Yema", 17.0, "Solo la yema")
++        )
++        food.name.contains("Manzana", ignoreCase = true) -> listOf(
++            PortionType("Unidad mediana", 182.0, "1 manzana mediana"),
++            PortionType("Unidad pequeña", 138.0, "1 manzana pequeña"),
++            PortionType("Unidad grande", 223.0, "1 manzana grande"),
++            PortionType("100 gramos", 100.0, "Medida estándar"),
++            PortionType("Rebanada", 25.0, "1 rebanada")
++        )
++        food.name.contains("Plátano", ignoreCase = true) -> listOf(
++            PortionType("Unidad mediana", 118.0, "1 plátano mediano"),
++            PortionType("Unidad pequeña", 81.0, "1 plátano pequeño"),
++            PortionType("Unidad grande", 136.0, "1 plátano grande"),
++            PortionType("100 gramos", 100.0, "Medida estándar")
++        )
++        food.name.contains("Yogur", ignoreCase = true) -> listOf(
++            PortionType("Envase individual", 125.0, "1 envase típico"),
++            PortionType("Taza", 245.0, "1 taza (8 oz)"),
++            PortionType("Media taza", 123.0, "1/2 taza"),
++            PortionType("100 gramos", 100.0, "Medida estándar"),
++            PortionType("Cucharada", 15.0, "1 cucharada")
++        )
++        food.name.contains("Pechuga", ignoreCase = true) || food.name.contains("Pollo", ignoreCase = true) -> listOf(
++            PortionType("Pechuga mediana", 150.0, "1 pechuga sin hueso"),
++            PortionType("Pechuga pequeña", 100.0, "1 pechuga pequeña"),
++            PortionType("Porción", 85.0, "Porción estándar"),
++            PortionType("100 gramos", 100.0, "Medida estándar")
++        )
++        food.name.contains("Arroz", ignoreCase = true) -> listOf(
++            PortionType("Taza cocido", 195.0, "1 taza de arroz cocido"),
++            PortionType("Media taza", 98.0, "1/2 taza cocido"),
++            PortionType("Porción", 150.0, "Porción estándar"),
++            PortionType("100 gramos", 100.0, "Medida estándar")
++        )
++        food.name.contains("Pan", ignoreCase = true) || food.name.contains("Tostada", ignoreCase = true) -> listOf(
++            PortionType("Rebanada", 25.0, "1 rebanada estándar"),
++            PortionType("Rebanada gruesa", 35.0, "1 rebanada gruesa"),
++            PortionType("Media rebanada", 12.5, "1/2 rebanada"),
++            PortionType("100 gramos", 100.0, "Medida estándar")
++        )
++        else -> listOf(
++            PortionType("100 gramos", 100.0, "Medida estándar"),
++            PortionType("Porción", 85.0, "Porción típica"),
++            PortionType("Media porción", 42.5, "Media porción"),
++            PortionType("Taza", 120.0, "1 taza aproximada")
++        )
++    }
++}
++
++@Composable
++fun AddFoodRegistrationModal(
++    food: FoodOption,
++    mealType: String,
++    onDismiss: () -> Unit,
++    onConfirm: (FoodRegistration) -> Unit
++) {
++    var quantity by remember { mutableDoubleStateOf(1.0) }
++    var selectedPortionIndex by remember { mutableIntStateOf(0) }
++    var customQuantity by remember { mutableStateOf("1.0") }
++
++    val portionTypes = remember { getPortionTypes(food) }
++    val selectedPortion = portionTypes[selectedPortionIndex]
++
++    // Cálculos nutricionales
++    val multiplier = (quantity * selectedPortion.grams) / 100.0
++    val totalCalories = (food.calories * multiplier).roundToInt()
++    val totalProtein = food.protein * multiplier
++    val totalCarbs = food.carbs * multiplier
++    val totalFat = food.fat * multiplier
++    val totalFiber = food.fiber * multiplier
++
++    Dialog(onDismissRequest = onDismiss) {
++        Card(
++            modifier = Modifier
++                .fillMaxWidth()
++                .wrapContentHeight()
++                .padding(16.dp),
++            shape = RoundedCornerShape(16.dp),
++            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
++        ) {
++            Column(
++                modifier = Modifier.padding(24.dp)
++            ) {
++                // Header con imagen y nombre del alimento
++                Row(
++                    modifier = Modifier.fillMaxWidth(),
++                    verticalAlignment = Alignment.CenterVertically
++                ) {
++                    Box(
++                        modifier = Modifier
++                            .size(60.dp)
++                            .clip(CircleShape)
++                            .background(MaterialTheme.colorScheme.surfaceVariant),
++                        contentAlignment = Alignment.Center
++                    ) {
++                        Text(
++                            text = when {
++                                food.name.contains("Manzana", ignoreCase = true) -> "🍎"
++                                food.name.contains("Plátano", ignoreCase = true) -> "🍌"
++                                food.name.contains("Huevo", ignoreCase = true) -> "🥚"
++                                food.name.contains("Yogur", ignoreCase = true) -> "🥛"
++                                food.name.contains("Pollo", ignoreCase = true) -> "🍗"
++                                food.name.contains("Salmón", ignoreCase = true) -> "🐟"
++                                food.name.contains("Pan", ignoreCase = true) -> "🍞"
++                                food.name.contains("Arroz", ignoreCase = true) -> "🍚"
++                                else -> "🍽️"
++                            },
++                            style = MaterialTheme.typography.headlineMedium
++                        )
++                    }
++
++                    Spacer(modifier = Modifier.width(16.dp))
++
++                    Column(modifier = Modifier.weight(1f)) {
++                        Text(
++                            text = food.name,
++                            style = MaterialTheme.typography.titleLarge,
++                            fontWeight = FontWeight.Bold
++                        )
++                        Text(
++                            text = mealType,
++                            style = MaterialTheme.typography.bodyMedium,
++                            color = MaterialTheme.colorScheme.primary
++                        )
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(24.dp))
++
++                // Selector de cantidad
++                Text(
++                    text = "Cantidad",
++                    style = MaterialTheme.typography.titleMedium,
++                    fontWeight = FontWeight.SemiBold,
++                    modifier = Modifier.padding(bottom = 8.dp)
++                )
++
++                Row(
++                    modifier = Modifier.fillMaxWidth(),
++                    verticalAlignment = Alignment.CenterVertically,
++                    horizontalArrangement = Arrangement.spacedBy(12.dp)
++                ) {
++                    // Botón para decrementar
++                    OutlinedButton(
++                        onClick = {
++                            if (quantity > 0.25) {
++                                quantity = (quantity - 0.25).coerceAtLeast(0.25)
++                                customQuantity = String.format("%.2f", quantity).trimEnd('0').trimEnd('.')
++                            }
++                        },
++                        modifier = Modifier.size(40.dp),
++                        contentPadding = PaddingValues(0.dp),
++                        shape = CircleShape
++                    ) {
++                        Icon(
++                            imageVector = Icons.Default.Remove,
++                            contentDescription = "Disminuir cantidad",
++                            modifier = Modifier.size(16.dp)
++                        )
++                    }
++
++                    // Campo de cantidad personalizada
++                    OutlinedTextField(
++                        value = customQuantity,
++                        onValueChange = { newValue ->
++                            customQuantity = newValue
++                            newValue.toDoubleOrNull()?.let { value ->
++                                if (value > 0) quantity = value
++                            }
++                        },
++                        modifier = Modifier.weight(1f),
++                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
++                        singleLine = true,
++                        textStyle = MaterialTheme.typography.bodyLarge.copy(
++                            textAlign = TextAlign.Center,
++                            fontSize = 18.sp
++                        )
++                    )
++
++                    // Botón para incrementar
++                    OutlinedButton(
++                        onClick = {
++                            quantity += 0.25
++                            customQuantity = String.format("%.2f", quantity).trimEnd('0').trimEnd('.')
++                        },
++                        modifier = Modifier.size(40.dp),
++                        contentPadding = PaddingValues(0.dp),
++                        shape = CircleShape
++                    ) {
++                        Icon(
++                            imageVector = Icons.Default.Add,
++                            contentDescription = "Aumentar cantidad",
++                            modifier = Modifier.size(16.dp)
++                        )
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(20.dp))
++
++                // Selector de tipo de porción
++                Text(
++                    text = "Tipo de porción",
++                    style = MaterialTheme.typography.titleMedium,
++                    fontWeight = FontWeight.SemiBold,
++                    modifier = Modifier.padding(bottom = 8.dp)
++                )
++
++                LazyColumn(
++                    modifier = Modifier.height(120.dp),
++                    verticalArrangement = Arrangement.spacedBy(4.dp)
++                ) {
++                    itemsIndexed(portionTypes) { index, portionType ->
++                        Card(
++                            modifier = Modifier
++                                .fillMaxWidth()
++                                .clickable { selectedPortionIndex = index },
++                            colors = CardDefaults.cardColors(
++                                containerColor = if (selectedPortionIndex == index)
++                                    MaterialTheme.colorScheme.primaryContainer
++                                else
++                                    MaterialTheme.colorScheme.surface
++                            ),
++                            border = if (selectedPortionIndex == index)
++                                BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
++                            else
++                                BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
++                        ) {
++                            Column(
++                                modifier = Modifier.padding(12.dp)
++                            ) {
++                                Text(
++                                    text = portionType.name,
++                                    style = MaterialTheme.typography.bodyLarge,
++                                    fontWeight = FontWeight.Medium,
++                                    color = if (selectedPortionIndex == index)
++                                        MaterialTheme.colorScheme.onPrimaryContainer
++                                    else
++                                        MaterialTheme.colorScheme.onSurface
++                                )
++                                Text(
++                                    text = "${portionType.grams}g - ${portionType.description}",
++                                    style = MaterialTheme.typography.bodySmall,
++                                    color = if (selectedPortionIndex == index)
++                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
++                                    else
++                                        MaterialTheme.colorScheme.onSurfaceVariant
++                                )
++                            }
++                        }
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(20.dp))
++
++                // Resumen nutricional
++                Card(
++                    modifier = Modifier.fillMaxWidth(),
++                    colors = CardDefaults.cardColors(
++                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
++                    )
++                ) {
++                    Column(
++                        modifier = Modifier.padding(16.dp)
++                    ) {
++                        Text(
++                            text = "Información nutricional",
++                            style = MaterialTheme.typography.titleMedium,
++                            fontWeight = FontWeight.SemiBold,
++                            color = MaterialTheme.colorScheme.onSecondaryContainer,
++                            modifier = Modifier.padding(bottom = 12.dp)
++                        )
++
++                        Row(
++                            modifier = Modifier.fillMaxWidth(),
++                            horizontalArrangement = Arrangement.SpaceBetween
++                        ) {
++                            NutritionalInfo(
++                                label = "Calorías",
++                                value = "$totalCalories",
++                                unit = "kcal",
++                                color = MaterialTheme.colorScheme.primary
++                            )
++                            NutritionalInfo(
++                                label = "Proteínas",
++                                value = String.format("%.1f", totalProtein),
++                                unit = "g",
++                                color = MaterialTheme.colorScheme.tertiary
++                            )
++                        }
++
++                        Spacer(modifier = Modifier.height(8.dp))
++
++                        Row(
++                            modifier = Modifier.fillMaxWidth(),
++                            horizontalArrangement = Arrangement.SpaceBetween
++                        ) {
++                            NutritionalInfo(
++                                label = "Carbohidratos",
++                                value = String.format("%.1f", totalCarbs),
++                                unit = "g",
++                                color = MaterialTheme.colorScheme.secondary
++                            )
++                            NutritionalInfo(
++                                label = "Grasas",
++                                value = String.format("%.1f", totalFat),
++                                unit = "g",
++                                color = MaterialTheme.colorScheme.error
++                            )
++                        }
++
++                        if (totalFiber > 0) {
++                            Spacer(modifier = Modifier.height(8.dp))
++                            Row(
++                                modifier = Modifier.fillMaxWidth(),
++                                horizontalArrangement = Arrangement.Start
++                            ) {
++                                NutritionalInfo(
++                                    label = "Fibra",
++                                    value = String.format("%.1f", totalFiber),
++                                    unit = "g",
++                                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
++                                )
++                            }
++                        }
++
++                        Spacer(modifier = Modifier.height(8.dp))
++
++                        Text(
++                            text = "Total: ${String.format("%.0f", quantity * selectedPortion.grams)}g",
++                            style = MaterialTheme.typography.bodyMedium,
++                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
++                            fontWeight = FontWeight.Medium
++                        )
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(24.dp))
++
++                // Botones de acción
++                Row(
++                    modifier = Modifier.fillMaxWidth(),
++                    horizontalArrangement = Arrangement.spacedBy(12.dp)
++                ) {
++                    OutlinedButton(
++                        onClick = onDismiss,
++                        modifier = Modifier.weight(1f)
++                    ) {
++                        Text("Cancelar")
++                    }
++
++                    Button(
++                        onClick = {
++                            val registration = FoodRegistration(
++                                food = food,
++                                quantity = quantity,
++                                portionType = selectedPortion,
++                                mealType = mealType,
++                                totalCalories = totalCalories,
++                                totalProtein = totalProtein,
++                                totalCarbs = totalCarbs,
++                                totalFat = totalFat,
++                                totalFiber = totalFiber
++                            )
++                            onConfirm(registration)
++                        },
++                        modifier = Modifier.weight(1f),
++                        colors = ButtonDefaults.buttonColors(
++                            containerColor = MaterialTheme.colorScheme.primary
++                        )
++                    ) {
++                        Text("Agregar", fontWeight = FontWeight.SemiBold)
++                    }
++                }
++            }
++        }
++    }
++}
++
++@Composable
++fun NutritionalInfo(
++    label: String,
++    value: String,
++    unit: String,
++    color: Color
++) {
++    Column(
++        horizontalAlignment = Alignment.CenterHorizontally
++    ) {
++        Text(
++            text = "$value$unit",
++            style = MaterialTheme.typography.titleMedium,
++            fontWeight = FontWeight.Bold,
++            color = color
++        )
++        Text(
++            text = label,
++            style = MaterialTheme.typography.bodySmall,
++            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
++        )
++    }
++}
+\ No newline at end of file
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    alias(libs.plugins.android.application)\r\n    alias(libs.plugins.kotlin.android)\r\n    alias(libs.plugins.kotlin.compose)\r\n}\r\n\r\nandroid {\r\n    namespace = \"com.example.limbus_client2\"\r\n    compileSdk = 35\r\n\r\n    defaultConfig {\r\n        applicationId = \"com.example.limbus_client2\"\r\n        minSdk = 24\r\n        targetSdk = 35\r\n        versionCode = 1\r\n        versionName = \"1.0\"\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(\r\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\r\n                \"proguard-rules.pro\"\r\n            )\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_11\r\n        targetCompatibility = JavaVersion.VERSION_11\r\n    }\r\n    kotlinOptions {\r\n        jvmTarget = \"11\"\r\n    }\r\n    buildFeatures {\r\n        compose = true\r\n    }\r\n}\r\n\r\ndependencies {\r\n    implementation(\"androidx.navigation:navigation-compose:2.9.0\") // Use the latest version\r\n    // Your other dependencies\r\n    implementation(libs.androidx.core.ktx)\r\n    implementation(libs.androidx.lifecycle.runtime.ktx)\r\n    implementation(libs.androidx.activity.compose)\r\n    implementation(platform(libs.androidx.compose.bom))\r\n    implementation(libs.androidx.ui)\r\n    implementation(libs.androidx.ui.graphics)\r\n    implementation(libs.androidx.ui.tooling.preview)\r\n    implementation(libs.androidx.material3)\r\n    testImplementation(libs.junit)\r\n    androidTestImplementation(libs.androidx.junit)\r\n    androidTestImplementation(libs.androidx.espresso.core)\r\n    androidTestImplementation(platform(libs.androidx.compose.bom))\r\n    androidTestImplementation(libs.androidx.ui.test.junit4)\r\n    debugImplementation(libs.androidx.ui.tooling)\r\n    debugImplementation(libs.androidx.ui.test.manifest)\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision ca8b0ee5b88371da9870e61889750841cf9545a7)
++++ b/app/build.gradle.kts	(date 1747970025600)
+@@ -57,4 +57,6 @@
+     androidTestImplementation(libs.androidx.ui.test.junit4)
+     debugImplementation(libs.androidx.ui.tooling)
+     debugImplementation(libs.androidx.ui.test.manifest)
++    //material 3
++    implementation("com.google.android.material:material:1.12.0")
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/AddFoodScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/AddFoodScreen.kt b/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/AddFoodScreen.kt
+new file mode 100644
+--- /dev/null	(date 1747977083254)
++++ b/app/src/main/java/com/example/limbus_client/presentation/ui/feature/meal_planning/AddFoodScreen.kt	(date 1747977083254)
+@@ -0,0 +1,720 @@
++package com.example.limbus_client.presentation.ui.feature.dashboard
++
++import androidx.compose.animation.AnimatedVisibility
++import androidx.compose.animation.expandVertically
++import androidx.compose.animation.fadeIn
++import androidx.compose.animation.fadeOut
++import androidx.compose.animation.shrinkVertically
++import androidx.compose.foundation.BorderStroke
++import androidx.compose.foundation.background
++import androidx.compose.foundation.clickable
++import androidx.compose.foundation.layout.Arrangement
++import androidx.compose.foundation.layout.Box
++import androidx.compose.foundation.layout.Column
++import androidx.compose.foundation.layout.PaddingValues
++import androidx.compose.foundation.layout.Row
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxSize
++import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
++import androidx.compose.foundation.layout.width
++import androidx.compose.foundation.lazy.LazyColumn
++import androidx.compose.foundation.lazy.grid.GridCells
++import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
++import androidx.compose.foundation.lazy.grid.items
++import androidx.compose.foundation.lazy.items
++import androidx.compose.foundation.shape.CircleShape
++import androidx.compose.foundation.shape.RoundedCornerShape
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.filled.Add
++import androidx.compose.material.icons.filled.ArrowBack
++import androidx.compose.material.icons.filled.Close
++import androidx.compose.material.icons.filled.Favorite
++import androidx.compose.material.icons.filled.Search
++import androidx.compose.material.icons.filled.Star
++import androidx.compose.material3.Card
++import androidx.compose.material3.CardDefaults
++import androidx.compose.material3.ExperimentalMaterial3Api
++import androidx.compose.material3.FloatingActionButton
++import androidx.compose.material3.Icon
++import androidx.compose.material3.IconButton
++import androidx.compose.material3.MaterialTheme
++import androidx.compose.material3.Scaffold
++import androidx.compose.material3.SearchBar
++import androidx.compose.material3.SegmentedButton
++import androidx.compose.material3.SegmentedButtonDefaults
++import androidx.compose.material3.SingleChoiceSegmentedButtonRow
++import androidx.compose.material3.Surface
++import androidx.compose.material3.Tab
++import androidx.compose.material3.TabRow
++import androidx.compose.material3.Text
++import androidx.compose.material3.TopAppBar
++import androidx.compose.material3.TopAppBarDefaults
++import androidx.compose.runtime.Composable
++import androidx.compose.runtime.getValue
++import androidx.compose.runtime.mutableStateOf
++import androidx.compose.runtime.remember
++import androidx.compose.runtime.setValue
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.clip
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.layout.ContentScale
++import androidx.compose.ui.res.painterResource
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.text.style.TextAlign
++import androidx.compose.ui.text.style.TextOverflow
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.window.Dialog
++
++// Modelos de datos mejorados
++data class FoodCategory(
++    val name: String,
++    val icon: Int
++)
++
++data class FoodOption(
++    val id: String,
++    val name: String,
++    val calories: Int,
++    val imageUrl: String? = null,
++    val protein: Double = 0.0,
++    val carbs: Double = 0.0,
++    val fat: Double = 0.0,
++    val fiber: Double = 0.0
++)
++
++data class Recipe(
++    val id: String,
++    val title: String,
++    val imageUrl: String?,
++    val readyInMinutes: Int,
++    val servings: Int,
++    val calories: Int,
++    val rating: Double = 0.0,
++    val isFavorite: Boolean = false
++)
++
++data class CookbookRecipe(
++    val id: String,
++    val name: String,
++    val imageUrl: String?,
++    val calories: Int,
++    val prepTime: String,
++    val difficulty: String,
++    val isPersonal: Boolean = true
++)
++
++// Lista de categorías de comidas
++val mealTypes = listOf(
++    "Desayuno",
++    "Almuerzo",
++    "Cena",
++    "Snack"
++)
++
++// Pestañas disponibles
++enum class FoodTab {
++    COOKBOOK, RECIPES, FOODS
++}
++
++// APIs de recetas con información detallada
++val recipeApis = listOf(
++    "Spoonacular API - Más de 5000 recetas con imágenes HD y análisis nutricional completo",
++    "Edamam Recipe API - Recetas con certificación nutricional y filtros dietéticos",
++    "TheMealDB - API gratuita con 300+ recetas internacionales e imágenes",
++    "Tasty API (RapidAPI) - Recetas de BuzzFeed con videos paso a paso",
++    "Recipe Puppy API - Búsqueda simple por ingredientes con imágenes",
++    "Forkify API - Recetas curadas con imágenes de alta calidad",
++    "BigOven API - 350,000+ recetas profesionales con fotos",
++    "Yummly API - Recomendaciones personalizadas con análisis nutricional"
++)
++
++@OptIn(ExperimentalMaterial3Api::class)
++@Composable
++fun AddFoodScreen(
++    onBackClicked: () -> Unit,
++    onFoodSelected: (String) -> Unit
++) {
++    // Estados existentes
++    var selectedMealTypeIndex by remember { mutableStateOf(0) }
++    var isFabExpanded by remember { mutableStateOf(false) }
++    var searchQuery by remember { mutableStateOf("") }
++    var isSearchActive by remember { mutableStateOf(false) }
++
++    // Nuevo estado para las pestañas
++    var selectedTab by remember { mutableStateOf(FoodTab.COOKBOOK) }
++
++    Scaffold(
++        topBar = {
++            TopAppBar(
++                title = { Text(text = mealTypes[selectedMealTypeIndex]) },
++                navigationIcon = {
++                    IconButton(onClick = onBackClicked) {
++                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Volver")
++                    }
++                },
++                colors = TopAppBarDefaults.topAppBarColors(
++                    containerColor = MaterialTheme.colorScheme.primary,
++                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
++                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
++                )
++            )
++        },
++        floatingActionButton = {
++            Column(horizontalAlignment = Alignment.End) {
++                AnimatedVisibility(
++                    visible = isFabExpanded,
++                    enter = fadeIn() + expandVertically(),
++                    exit = fadeOut() + shrinkVertically()
++                ) {
++                    Column(
++                        horizontalAlignment = Alignment.End,
++                        verticalArrangement = Arrangement.spacedBy(8.dp),
++                        modifier = Modifier.padding(bottom = 8.dp)
++                    ) {
++                        MealTypeFab(type = "Crear receta personalizada", onClick = {
++                            onFoodSelected("Receta personalizada")
++                            isFabExpanded = false
++                        })
++                        MealTypeFab(type = "Buscar alimento común", onClick = {
++                            onFoodSelected("Alimento común")
++                            isFabExpanded = false
++                        })
++                        MealTypeFab(type = "Escanear código de barras", onClick = {
++                            onFoodSelected("Escanear código")
++                            isFabExpanded = false
++                        })
++                        MealTypeFab(type = "Importar de API", onClick = {
++                            onFoodSelected("Importar API")
++                            isFabExpanded = false
++                        })
++                    }
++                }
++                FloatingActionButton(
++                    onClick = { isFabExpanded = !isFabExpanded },
++                    containerColor = MaterialTheme.colorScheme.primary,
++                    contentColor = MaterialTheme.colorScheme.onPrimary
++                ) {
++                    Icon(
++                        imageVector = if (isFabExpanded) Icons.Default.Close else Icons.Default.Add,
++                        contentDescription = if (isFabExpanded) "Cerrar opciones" else "Añadir alimento"
++                    )
++                }
++            }
++        }
++    ) { paddingValues ->
++        Column(
++            modifier = Modifier
++                .fillMaxSize()
++                .padding(paddingValues)
++        ) {
++            // Selector de tipo de comida
++            SingleChoiceSegmentedButtonRow(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(16.dp)
++            ) {
++                mealTypes.forEachIndexed { index, type ->
++                    SegmentedButton(
++                        shape = SegmentedButtonDefaults.itemShape(
++                            index = index,
++                            count = mealTypes.size
++                        ),
++                        onClick = { selectedMealTypeIndex = index },
++                        selected = index == selectedMealTypeIndex
++                    ) {
++                        Text(type)
++                    }
++                }
++            }
++
++            // Barra de búsqueda mejorada
++            SearchBar(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .padding(horizontal = 16.dp),
++                query = searchQuery,
++                onQueryChange = { searchQuery = it },
++                onSearch = { isSearchActive = false },
++                active = isSearchActive,
++                onActiveChange = { isSearchActive = it },
++                placeholder = {
++                    Text(when(selectedTab) {
++                        FoodTab.COOKBOOK -> "Buscar en tu libro de cocina"
++                        FoodTab.RECIPES -> "Buscar recetas online"
++                        FoodTab.FOODS -> "Buscar alimentos y productos"
++                    })
++                },
++                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") }
++            ) {
++                // Sugerencias de búsqueda según la pestaña
++                Column(
++                    modifier = Modifier.fillMaxWidth().padding(16.dp)
++                ) {
++                    Text(
++                        "Resultados para '$searchQuery'",
++                        style = MaterialTheme.typography.titleMedium,
++                        modifier = Modifier.padding(bottom = 8.dp)
++                    )
++                    // Aquí podrías mostrar sugerencias específicas por pestaña
++                    when(selectedTab) {
++                        FoodTab.COOKBOOK -> Text("Buscando en recetas guardadas...", style = MaterialTheme.typography.bodyMedium)
++                        FoodTab.RECIPES -> Text("Buscando en bases de datos de recetas...", style = MaterialTheme.typography.bodyMedium)
++                        FoodTab.FOODS -> Text("Buscando alimentos y productos...", style = MaterialTheme.typography.bodyMedium)
++                    }
++                }
++            }
++
++            // Pestañas mejoradas
++            TabRow(selectedTabIndex = selectedTab.ordinal) {
++                Tab(
++                    selected = selectedTab == FoodTab.COOKBOOK,
++                    onClick = { selectedTab = FoodTab.COOKBOOK },
++                    text = { Text("LIBRO DE COCINA") }
++                )
++                Tab(
++                    selected = selectedTab == FoodTab.RECIPES,
++                    onClick = { selectedTab = FoodTab.RECIPES },
++                    text = { Text("RECETAS") }
++                )
++                Tab(
++                    selected = selectedTab == FoodTab.FOODS,
++                    onClick = { selectedTab = FoodTab.FOODS },
++                    text = { Text("ALIMENTOS") }
++                )
++            }
++
++            // Contenido según la pestaña seleccionada
++            when(selectedTab) {
++                FoodTab.COOKBOOK -> CookbookContent(mealTypes[selectedMealTypeIndex])
++                FoodTab.RECIPES -> RecipesContent(mealTypes[selectedMealTypeIndex])
++                FoodTab.FOODS -> FoodsContent(mealTypes[selectedMealTypeIndex])
++            }
++        }
++    }
++}
++
++@Composable
++fun MealTypeFab(type: String, onClick: () -> Unit) {
++    Row(
++        verticalAlignment = Alignment.CenterVertically,
++        modifier = Modifier
++            .clip(RoundedCornerShape(16.dp))
++            .background(MaterialTheme.colorScheme.secondaryContainer)
++            .clickable(onClick = onClick)
++            .padding(horizontal = 16.dp, vertical = 8.dp)
++    ) {
++        Text(
++            text = type,
++            color = MaterialTheme.colorScheme.onSecondaryContainer,
++            style = MaterialTheme.typography.labelLarge
++        )
++    }
++}
++
++// Contenido del Libro de Cocina (recetas guardadas/personales)
++@Composable
++fun CookbookContent(mealType: String) {
++    val cookbookRecipes = getCookbookRecipes(mealType)
++
++    LazyVerticalGrid(
++        columns = GridCells.Fixed(2),
++        contentPadding = PaddingValues(16.dp),
++        horizontalArrangement = Arrangement.spacedBy(16.dp),
++        verticalArrangement = Arrangement.spacedBy(16.dp)
++    ) {
++        items(cookbookRecipes) { recipe ->
++            CookbookRecipeCard(recipe)
++        }
++    }
++}
++
++// Contenido de Recetas (APIs externas)
++@Composable
++fun RecipesContent(mealType: String) {
++    val recipes = getOnlineRecipes(mealType)
++
++    LazyVerticalGrid(
++        columns = GridCells.Fixed(2),
++        contentPadding = PaddingValues(16.dp),
++        horizontalArrangement = Arrangement.spacedBy(16.dp),
++        verticalArrangement = Arrangement.spacedBy(16.dp)
++    ) {
++        items(recipes) { recipe ->
++            OnlineRecipeCard(recipe)
++        }
++    }
++}
++
++// Contenido de Alimentos
++@Composable
++fun FoodsContent(mealType: String) {
++    val foods = getFoodOptions(mealType)
++
++    LazyColumn(
++        contentPadding = PaddingValues(16.dp),
++        verticalArrangement = Arrangement.spacedBy(8.dp)
++    ) {
++        items(foods) { food ->
++            FoodItemCard(food)
++        }
++    }
++}
++
++@Composable
++fun CookbookRecipeCard(recipe: CookbookRecipe) {
++    Card(
++        modifier = Modifier
++            .fillMaxWidth()
++            .height(200.dp)
++            .clickable { /* Navegar a detalle */ },
++        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
++        shape = RoundedCornerShape(12.dp)
++    ) {
++        Column {
++            Box(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .height(130.dp)
++            ) {
++                // Placeholder para imagen - aquí usarías AsyncImage con Coil
++                Box(
++                    modifier = Modifier
++                        .fillMaxSize()
++                        .background(MaterialTheme.colorScheme.surfaceVariant),
++                    contentAlignment = Alignment.Center
++                ) {
++                    Text(
++                        text = "🍳",
++                        style = MaterialTheme.typography.headlineLarge
++                    )
++                }
++
++                // Badge de dificultad
++                Text(
++                    text = recipe.difficulty,
++                    modifier = Modifier
++                        .align(Alignment.TopEnd)
++                        .padding(8.dp)
++                        .background(
++                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
++                            shape = RoundedCornerShape(8.dp)
++                        )
++                        .padding(horizontal = 8.dp, vertical = 4.dp),
++                    color = MaterialTheme.colorScheme.onPrimaryContainer,
++                    style = MaterialTheme.typography.labelSmall
++                )
++
++                // Calorías
++                Text(
++                    text = "${recipe.calories} cal",
++                    modifier = Modifier
++                        .align(Alignment.BottomEnd)
++                        .padding(8.dp)
++                        .background(
++                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f),
++                            shape = RoundedCornerShape(8.dp)
++                        )
++                        .padding(horizontal = 8.dp, vertical = 4.dp),
++                    color = MaterialTheme.colorScheme.onSecondary,
++                    style = MaterialTheme.typography.labelMedium,
++                    fontWeight = FontWeight.Bold
++                )
++            }
++
++            Column(modifier = Modifier.padding(12.dp)) {
++                Text(
++                    text = recipe.name,
++                    style = MaterialTheme.typography.titleSmall,
++                    fontWeight = FontWeight.Bold,
++                    maxLines = 1,
++                    overflow = TextOverflow.Ellipsis
++                )
++                Text(
++                    text = "⏱️ ${recipe.prepTime}",
++                    style = MaterialTheme.typography.bodySmall,
++                    color = MaterialTheme.colorScheme.onSurfaceVariant
++                )
++            }
++        }
++    }
++}
++
++@Composable
++fun OnlineRecipeCard(recipe: Recipe) {
++    Card(
++        modifier = Modifier
++            .fillMaxWidth()
++            .height(220.dp)
++            .clickable { /* Navegar a detalle */ },
++        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
++        shape = RoundedCornerShape(12.dp)
++    ) {
++        Column {
++            Box(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .height(140.dp)
++            ) {
++                // Placeholder para imagen - aquí usarías AsyncImage con Coil
++                Box(
++                    modifier = Modifier
++                        .fillMaxSize()
++                        .background(MaterialTheme.colorScheme.surfaceVariant),
++                    contentAlignment = Alignment.Center
++                ) {
++                    Text(
++                        text = "🍽️",
++                        style = MaterialTheme.typography.headlineLarge
++                    )
++                }
++
++                // Botón favorito
++                IconButton(
++                    onClick = { /* Toggle favorito */ },
++                    modifier = Modifier.align(Alignment.TopEnd)
++                ) {
++                    Icon(
++                        imageVector = Icons.Default.Favorite,
++                        contentDescription = "Favorito",
++                        tint = if (recipe.isFavorite) Color.Red else Color.White
++                    )
++                }
++
++                // Rating
++                if (recipe.rating > 0) {
++                    Row(
++                        modifier = Modifier
++                            .align(Alignment.TopStart)
++                            .padding(8.dp)
++                            .background(
++                                color = Color.Black.copy(alpha = 0.7f),
++                                shape = RoundedCornerShape(8.dp)
++                            )
++                            .padding(horizontal = 8.dp, vertical = 4.dp),
++                        verticalAlignment = Alignment.CenterVertically
++                    ) {
++                        Icon(
++                            imageVector = Icons.Default.Star,
++                            contentDescription = "Rating",
++                            tint = Color.Yellow,
++                            modifier = Modifier.size(16.dp)
++                        )
++                        Spacer(modifier = Modifier.width(4.dp))
++                        Text(
++                            text = String.format("%.1f", recipe.rating),
++                            color = Color.White,
++                            style = MaterialTheme.typography.labelSmall
++                        )
++                    }
++                }
++
++                // Calorías
++                Text(
++                    text = "${recipe.calories} cal",
++                    modifier = Modifier
++                        .align(Alignment.BottomEnd)
++                        .padding(8.dp)
++                        .background(
++                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
++                            shape = RoundedCornerShape(8.dp)
++                        )
++                        .padding(horizontal = 8.dp, vertical = 4.dp),
++                    color = MaterialTheme.colorScheme.onPrimary,
++                    style = MaterialTheme.typography.labelMedium,
++                    fontWeight = FontWeight.Bold
++                )
++            }
++
++            Column(modifier = Modifier.padding(12.dp)) {
++                Text(
++                    text = recipe.title,
++                    style = MaterialTheme.typography.titleSmall,
++                    fontWeight = FontWeight.Bold,
++                    maxLines = 2,
++                    overflow = TextOverflow.Ellipsis
++                )
++                Row(
++                    modifier = Modifier.fillMaxWidth(),
++                    horizontalArrangement = Arrangement.SpaceBetween
++                ) {
++                    Text(
++                        text = "⏱️ ${recipe.readyInMinutes} min",
++                        style = MaterialTheme.typography.bodySmall,
++                        color = MaterialTheme.colorScheme.onSurfaceVariant
++                    )
++                    Text(
++                        text = "🍽️ ${recipe.servings} porciones",
++                        style = MaterialTheme.typography.bodySmall,
++                        color = MaterialTheme.colorScheme.onSurfaceVariant
++                    )
++                }
++            }
++        }
++    }
++}
++
++@Composable
++fun FoodItemCard(food: FoodOption) {
++    Card(
++        modifier = Modifier
++            .fillMaxWidth()
++            .clickable { /* Añadir alimento */ },
++        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
++    ) {
++        Row(
++            modifier = Modifier.padding(16.dp),
++            verticalAlignment = Alignment.CenterVertically
++        ) {
++            // Placeholder para imagen del alimento
++            Box(
++                modifier = Modifier
++                    .size(60.dp)
++                    .clip(CircleShape)
++                    .background(MaterialTheme.colorScheme.surfaceVariant),
++                contentAlignment = Alignment.Center
++            ) {
++                Text(
++                    text = "🍎",
++                    style = MaterialTheme.typography.headlineSmall
++                )
++            }
++
++            Spacer(modifier = Modifier.width(16.dp))
++
++            Column(modifier = Modifier.weight(1f)) {
++                Text(
++                    text = food.name,
++                    style = MaterialTheme.typography.titleMedium,
++                    fontWeight = FontWeight.Bold
++                )
++                Text(
++                    text = "${food.calories} cal por 100g",
++                    style = MaterialTheme.typography.bodyMedium,
++                    color = MaterialTheme.colorScheme.onSurfaceVariant
++                )
++                // Información nutricional adicional
++                Text(
++                    text = "P: ${food.protein}g | C: ${food.carbs}g | G: ${food.fat}g",
++                    style = MaterialTheme.typography.bodySmall,
++                    color = MaterialTheme.colorScheme.onSurfaceVariant
++                )
++            }
++
++            IconButton(onClick = { /* Añadir */ }) {
++                Icon(
++                    imageVector = Icons.Default.Add,
++                    contentDescription = "Añadir alimento"
++                )
++            }
++        }
++    }
++}
++
++// Funciones para obtener datos (simuladas - aquí conectarías con APIs reales)
++fun getCookbookRecipes(mealType: String): List<CookbookRecipe> {
++    return when (mealType) {
++        "Desayuno" -> listOf(
++            CookbookRecipe("1", "Magdalenas de Avena Caseras", null, 180, "25 min", "Fácil"),
++            CookbookRecipe("2", "Pancakes Proteicos", null, 210, "15 min", "Fácil"),
++            CookbookRecipe("3", "Bowl de Açaí", null, 320, "10 min", "Muy Fácil")
++        )
++        "Almuerzo" -> listOf(
++            CookbookRecipe("4", "Ensalada César Premium", null, 320, "20 min", "Fácil"),
++            CookbookRecipe("5", "Pollo Teriyaki", null, 380, "30 min", "Medio"),
++            CookbookRecipe("6", "Wrap Mediterráneo", null, 310, "15 min", "Fácil")
++        )
++        "Cena" -> listOf(
++            CookbookRecipe("7", "Salmón Glaseado", null, 350, "25 min", "Medio"),
++            CookbookRecipe("8", "Risotto de Champiñones", null, 420, "35 min", "Difícil"),
++            CookbookRecipe("9", "Tacos de Pescado", null, 280, "20 min", "Fácil")
++        )
++        else -> listOf(
++            CookbookRecipe("10", "Energy Balls", null, 150, "10 min", "Muy Fácil"),
++            CookbookRecipe("11", "Smoothie Verde", null, 180, "5 min", "Muy Fácil")
++        )
++    }
++}
++
++fun getOnlineRecipes(mealType: String): List<Recipe> {
++    return when (mealType) {
++        "Desayuno" -> listOf(
++            Recipe("r1", "Avocado Toast Gourmet", null, 15, 2, 280, 4.8, false),
++            Recipe("r2", "French Toast Stuffed", null, 20, 4, 420, 4.6, true),
++            Recipe("r3", "Chia Pudding Parfait", null, 10, 2, 250, 4.7, false),
++            Recipe("r4", "Breakfast Quinoa Bowl", null, 25, 3, 340, 4.5, false)
++        )
++        "Almuerzo" -> listOf(
++            Recipe("r5", "Buddha Bowl Mediterráneo", null, 30, 2, 450, 4.9, true),
++            Recipe("r6", "Pasta Pesto con Pollo", null, 25, 4, 520, 4.4, false),
++            Recipe("r7", "Quinoa Stuffed Bell Peppers", null, 35, 4, 380, 4.6, false),
++            Recipe("r8", "Asian Fusion Salad", null, 20, 2, 320, 4.3, false)
++        )
++        "Cena" -> listOf(
++            Recipe("r9", "Lemon Herb Salmon", null, 30, 4, 480, 4.8, true),
++            Recipe("r10", "Mushroom Risotto Creamy", null, 40, 6, 420, 4.5, false),
++            Recipe("r11", "Thai Curry Coconut", null, 35, 4, 380, 4.7, false),
++            Recipe("r12", "Stuffed Zucchini Boats", null, 45, 4, 290, 4.4, false)
++        )
++        else -> listOf(
++            Recipe("r13", "Protein Smoothie Bowl", null, 10, 1, 280, 4.6, false),
++            Recipe("r14", "Dark Chocolate Truffles", null, 60, 12, 150, 4.9, true),
++            Recipe("r15", "Homemade Granola Bars", null, 30, 8, 200, 4.3, false)
++        )
++    }
++}
++fun getFoodOptions(mealType: String): List<FoodOption> {
++    return when (mealType) {
++        "Desayuno" -> listOf(
++            FoodOption("f1", "Avena integral", 389, null, 16.9, 66.3, 6.9, 10.6),
++            FoodOption("f2", "Plátano maduro", 89, null, 1.1, 22.8, 0.3, 2.6),
++            FoodOption("f3", "Yogur griego natural", 59, null, 10.0, 3.6, 0.4, 0.0),
++            FoodOption("f4", "Huevos enteros", 155, null, 13.0, 1.1, 11.0, 0.0),
++            FoodOption("f5", "Leche de almendras", 17, null, 0.6, 0.6, 1.1, 0.5),
++            FoodOption("f6", "Tostada integral", 247, null, 13.0, 41.0, 4.2, 7.0),
++            FoodOption("f7", "Mantequilla de maní", 588, null, 25.8, 20.0, 50.4, 8.5),
++            FoodOption("f8", "Café negro", 2, null, 0.3, 0.0, 0.0, 0.0),
++            FoodOption("f9", "Miel natural", 304, null, 0.3, 82.4, 0.0, 0.2),
++            FoodOption("f10", "Granola casera", 471, null, 10.1, 68.0, 20.0, 8.0)
++        )
++        "Almuerzo" -> listOf(
++            FoodOption("f11", "Pechuga de pollo", 165, null, 31.0, 0.0, 3.6, 0.0),
++            FoodOption("f12", "Arroz integral", 123, null, 2.6, 23.0, 1.0, 1.8),
++            FoodOption("f13", "Brócoli fresco", 34, null, 2.8, 7.0, 0.4, 2.6),
++            FoodOption("f14", "Aguacate", 160, null, 2.0, 8.5, 14.7, 6.7),
++            FoodOption("f15", "Quinoa cocida", 120, null, 4.4, 21.3, 1.9, 2.8),
++            FoodOption("f16", "Ensalada mixta", 20, null, 1.4, 4.0, 0.2, 2.0),
++            FoodOption("f17", "Aceite de oliva", 884, null, 0.0, 0.0, 100.0, 0.0),
++            FoodOption("f18", "Tomate cherry", 18, null, 0.9, 3.9, 0.2, 1.2),
++            FoodOption("f19", "Pasta integral", 124, null, 5.0, 25.0, 1.1, 3.2),
++            FoodOption("f20", "Pavo en rebanadas", 135, null, 25.0, 0.0, 3.2, 0.0)
++        )
++        "Cena" -> listOf(
++            FoodOption("f21", "Salmón fresco", 208, null, 25.4, 0.0, 12.4, 0.0),
++            FoodOption("f22", "Batata dulce", 86, null, 1.6, 20.1, 0.1, 3.0),
++            FoodOption("f23", "Espinacas frescas", 23, null, 2.9, 3.6, 0.4, 2.2),
++            FoodOption("f24", "Tofu firme", 76, null, 8.1, 1.9, 4.8, 0.3),
++            FoodOption("f25", "Champiñones", 22, null, 3.1, 3.3, 0.3, 1.0),
++            FoodOption("f26", "Carne de res magra", 250, null, 26.1, 0.0, 15.0, 0.0),
++            FoodOption("f27", "Calabacín", 17, null, 1.2, 3.1, 0.3, 1.0),
++            FoodOption("f28", "Pimientos rojos", 31, null, 1.0, 7.0, 0.3, 2.5),
++            FoodOption("f29", "Coliflor", 25, null, 1.9, 5.0, 0.3, 2.0),
++            FoodOption("f30", "Lentejas cocidas", 116, null, 9.0, 20.0, 0.4, 7.9)
++        )
++        else -> listOf(
++            FoodOption("f31", "Almendras naturales", 579, null, 21.2, 21.6, 49.9, 12.5),
++            FoodOption("f32", "Manzana roja", 52, null, 0.3, 13.8, 0.2, 2.4),
++            FoodOption("f33", "Yogur con frutos secos", 150, null, 8.0, 12.0, 8.0, 2.0),
++            FoodOption("f34", "Mix de frutos secos", 607, null, 20.0, 20.0, 54.0, 10.0),
++            FoodOption("f35", "Chocolate negro 70%", 546, null, 7.8, 45.9, 31.3, 10.9),
++            FoodOption("f36", "Zanahoria baby", 41, null, 0.9, 9.6, 0.2, 2.8),
++            FoodOption("f37", "Hummus tradicional", 166, null, 8.0, 14.3, 9.6, 6.0),
++            FoodOption("f38", "Crackers integrales", 395, null, 11.0, 67.0, 11.0, 10.0),
++            FoodOption("f39", "Batido de proteínas", 120, null, 24.0, 3.0, 1.5, 1.0),
++            FoodOption("f40", "Té verde", 1, null, 0.0, 0.0, 0.0, 0.0)
++        )
++    }
++}
+\ No newline at end of file

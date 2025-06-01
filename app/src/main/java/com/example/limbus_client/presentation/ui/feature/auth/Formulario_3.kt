@@ -34,14 +34,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.limbus_client.presentation.ui.component.StepIndicator
+import com.example.limbus_client.data.model.remote.RiskFactorsRequest
+import com.example.limbus_client.data.repository.impl.RiskFactorsValidationRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Formulario_3(
-    onFinishClicked: () -> Unit,
+    onFinishClicked: (RiskFactorsRequest) -> Unit,
     onBackClicked: () -> Unit,
     onLoginClicked: () -> Unit
 ) {
+    // Repositorio de validación
+    val validationRepository = remember { RiskFactorsValidationRepository() }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -101,7 +106,7 @@ fun Formulario_3(
 
             // Estado para los checkboxes
             val checkboxStates = remember {
-                mutableStateOf(riskFactors.associateWith { false }.toMutableMap())
+                mutableStateOf(riskFactors.associateWith { false })
             }
 
             riskFactors.forEach { factor ->
@@ -109,7 +114,9 @@ fun Formulario_3(
                     text = factor,
                     checked = checkboxStates.value[factor] ?: false,
                     onCheckedChange = { isChecked ->
-                        checkboxStates.value[factor] = isChecked
+                        checkboxStates.value = checkboxStates.value.toMutableMap().apply {
+                            this[factor] = isChecked
+                        }
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -119,7 +126,22 @@ fun Formulario_3(
 
             // Botón de finalizar
             Button(
-                onClick = onFinishClicked,
+                onClick = {
+                    val currentStates = checkboxStates.value
+                    val riskFactorsData = RiskFactorsRequest(
+                        hipertension = currentStates["Hipertensión"] ?: false,
+                        diabetes = currentStates["Diabetes"] ?: false,
+                        colesterolElevado = currentStates["Colesterol elevado"] ?: false,
+                        antecedentesFamiliares = currentStates["Antecedentes familiares"] ?: false,
+                        sobrepeso = currentStates["Sobrepeso/Obesidad"] ?: false,
+                        sedentarismo = currentStates["Sedentarismo"] ?: false,
+                        tabaquismo = currentStates["Tabaquismo"] ?: false,
+                        estresCronico = currentStates["Estrés crónico"] ?: false,
+                        fechaRegistro = System.currentTimeMillis()
+                    )
+
+                    onFinishClicked(riskFactorsData)
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF3F51B5)
                 ),
