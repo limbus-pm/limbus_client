@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.limbus_client2"
+    namespace = "app.client.limbus"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.limbus_client2"
+        applicationId = "app.client.limbus"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

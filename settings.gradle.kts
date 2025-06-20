@@ -19,6 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "limbus_client2"
+rootProject.name = "limbus"
+include(":app")
 include(":app")
  
