@@ -1,4 +1,4 @@
-package com.example.limbus_client2.ui.theme
+package app.client.limbus.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

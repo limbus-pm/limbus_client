@@ -1,4 +1,4 @@
-package com.example.limbus_client2.ui.theme
+package app.client.limbus.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun Limbus_client2Theme(
+fun LimbusTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
